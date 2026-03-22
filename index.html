@@ -20,7 +20,6 @@
     </style>
 </head>
 <body>
-
     <div id="splash" class="fixed inset-0 bg-[#020617] flex flex-col items-center justify-center z-[10000]">
         <div class="w-16 h-16 bg-sky-500 rounded-2xl rotate-45 flex items-center justify-center animate-bounce text-white font-black text-2xl">S</div>
         <p class="mt-8 text-sky-400 font-bold tracking-widest animate-pulse uppercase">Sodari Online</p>
@@ -92,11 +91,11 @@
     </div>
 
     <script>
-        // --- 1. FIXED FIREBASE CONFIG (AuthDomain Changed to fix errors) ---
+        // --- FIREBASE CONFIG (AuthDomain standardized to Firebase for callback safety) ---
         const firebaseConfig = { 
             apiKey: "AIzaSyCPfeQuHLUciwDha9g2y3_Wc4eLvjjkxW4", 
             databaseURL: "https://sodari-online-default-rtdb.firebaseio.com",
-            authDomain: "djxplore.github.io" // Use your GitHub Domain here
+            authDomain: "sodari-online.firebaseapp.com" 
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -107,7 +106,6 @@
         let tempUser = null;
         let selectedProduct = null;
 
-        // --- 2. GOOGLE AUTH LOGIC FOR APK ---
         function signInWithGoogle() {
             auth.signInWithRedirect(provider).catch((err) => alert("Login Error: " + err.message));
         }
@@ -164,7 +162,6 @@
 
         function logout() { localStorage.clear(); auth.signOut(); location.reload(); }
 
-        // --- 3. UI & SHOP LOGIC ---
         function initUI() {
             document.getElementById('header-user-name').innerText = currentUser.name;
             document.getElementById('prof-name').innerText = currentUser.name;
