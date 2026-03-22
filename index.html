@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sodari Shop - OTP Verified</title>
+    <title>Sodari Shop - Verified Only</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -17,7 +17,9 @@
         .nav-active { color: var(--primary); transform: translateY(-3px); }
         .hidden { display: none !important; }
         input { color: white !important; background: rgba(15, 23, 42, 0.6) !important; border: 1px solid rgba(51, 65, 85, 1) !important; outline: none; }
-        .product-card { transition: 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+        .product-card { transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.05); }
+        .product-card:active { transform: scale(0.96); }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
 <body>
@@ -27,7 +29,7 @@
         <p class="mt-8 text-sky-400 font-bold tracking-widest animate-pulse uppercase">OTP Verification</p>
     </div>
 
-    <!-- REGISTRATION SECTION -->
+    <!-- REGISTRATION -->
     <div id="auth-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
         <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl">
             <h2 class="text-3xl font-extrabold mb-1 uppercase">Welcome</h2>
@@ -39,30 +41,36 @@
                 <input type="text" id="reg-address" class="w-full p-4 rounded-xl" placeholder="Complete Address">
                 <button onclick="sendOTP()" id="send-otp-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition uppercase mt-2">Send Code to Email</button>
             </div>
-            <p class="text-[9px] text-slate-500 mt-6 uppercase tracking-widest">Fake Numbers will be blocked</p>
         </div>
     </div>
 
-    <!-- OTP VERIFICATION SCREEN -->
+    <!-- OTP SCREEN -->
     <div id="otp-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
         <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] border border-sky-500/30">
             <h2 class="text-2xl font-black mb-2 uppercase">Verify Email</h2>
-            <p id="otp-msg" class="text-slate-400 text-xs mb-8"></p>
             <div class="space-y-4">
                 <input type="number" id="otp-input" class="w-full p-5 rounded-xl text-center text-3xl font-bold tracking-[8px]" placeholder="000000">
                 <button onclick="verifyOTP()" id="verify-btn" class="w-full bg-green-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition">ACTIVATE ACCOUNT</button>
-                <p onclick="location.reload()" class="text-slate-500 text-[10px] uppercase font-bold underline cursor-pointer mt-4">Edit My Details</p>
+                <p onclick="location.reload()" class="text-slate-500 text-[10px] uppercase font-bold underline cursor-pointer mt-4">Edit Details</p>
             </div>
         </div>
     </div>
 
-    <!-- MAIN APP CONTENT -->
+    <!-- MAIN APP -->
     <div id="main-app" class="hidden">
         <header class="p-5 flex justify-between items-center glass sticky top-0 z-50">
             <div><p class="text-[10px] text-sky-400 font-black uppercase tracking-widest">Official Shop,</p><h1 id="header-user-name" class="font-extrabold text-lg truncate max-w-[150px]">Guest</h1></div>
             <div onclick="showPage('profile')" class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center font-black" id="nav-initial">S</div>
         </header>
-        <div id="page-shop" class="page-content p-4 pb-32"><div id="product-list" class="grid grid-cols-2 gap-4"></div></div>
+        
+        <div id="page-shop" class="page-content p-4 pb-32">
+            <div class="mb-6 p-6 bg-gradient-to-br from-blue-600 to-sky-500 rounded-[2rem] shadow-xl">
+                <h2 class="text-2xl font-black uppercase tracking-widest">Sodari Shop</h2>
+            </div>
+            <!-- PRODUCT LIST GRID IMPROVED -->
+            <div id="product-list" class="grid grid-cols-2 gap-4"></div>
+        </div>
+
         <div id="page-history" class="page-content p-4 hidden pb-32 text-center"><h2 class="text-2xl font-extrabold mb-6 uppercase">My Orders</h2><div id="order-history" class="space-y-4"></div></div>
         <div id="page-profile" class="page-content p-6 hidden pb-32 text-center">
              <div class="glass p-8 rounded-[2.5rem] mb-6 border-white/5 shadow-xl">
@@ -72,8 +80,9 @@
                 <p id="prof-phone" class="text-slate-400 text-xs font-bold"></p>
                 <p id="prof-address" class="text-slate-500 text-[10px] mt-2 uppercase"></p>
             </div>
-            <button onclick="logout()" class="w-full bg-red-500/10 text-red-500 p-5 rounded-2xl font-black border border-red-500/20 uppercase">Logout Account</button>
+            <button onclick="logout()" class="w-full bg-red-500/10 text-red-500 p-5 rounded-2xl font-black border border-red-500/20 uppercase tracking-widest">Logout Account</button>
         </div>
+
         <nav class="fixed bottom-0 w-full glass flex justify-around p-4 rounded-t-[2.5rem] z-[1000] border-t border-white/10 shadow-2xl">
             <button onclick="showPage('shop')" id="btn-shop" class="nav-btn nav-active">🏠<span>Home</span></button>
             <button onclick="showPage('history')" id="btn-history" class="nav-btn">📦<span>Orders</span></button>
@@ -90,7 +99,7 @@
                 <img id="dynamic-qr" src="" class="w-60 h-60 rounded-lg">
                 <p class="text-[12px] text-slate-900 font-bold mt-2 uppercase">SONAM TASHI</p>
             </div>
-            <div class="space-y-4 mb-4 text-center">
+            <div class="space-y-4 mb-4">
                 <input type="file" id="pay-img" accept="image/*" class="w-full text-xs text-slate-400">
                 <input type="text" id="pay-utr" placeholder="Transaction ID (UTR)" class="w-full p-4 bg-slate-950 border border-slate-700 rounded-xl text-center uppercase font-mono text-white outline-none">
             </div>
@@ -99,7 +108,6 @@
     </div>
 
     <script>
-        // --- १. FIXED IDS FROM YOUR ACCOUNT ---
         const SERVICE_ID = "service_ayu880i";
         const TEMPLATE_ID = "template_9y1rbhq";
         const PUBLIC_KEY = "iPOwwrMm5Sf2UrudJ";
@@ -111,9 +119,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        (function(){
-            emailjs.init(PUBLIC_KEY); 
-        })();
+        (function(){ emailjs.init(PUBLIC_KEY); })();
 
         let generatedOTP = null;
         let userDataTemp = null;
@@ -125,46 +131,22 @@
             const email = document.getElementById('reg-email').value.trim();
             const phone = document.getElementById('reg-phone').value.trim();
             const address = document.getElementById('reg-address').value.trim();
-
-            const phonePattern = /^[6-9]\d{9}$/; 
-            if (!name || !email || !phone || !address) return alert("Please fill all details!");
-            if (!phonePattern.test(phone)) return alert("Use a real 10-digit number.");
-            if (/(.)\1{5}/.test(phone)) return alert("Fake repeating numbers are blocked!");
-
-            const btn = document.getElementById('send-otp-btn');
-            btn.innerText = "Sending Code..."; btn.disabled = true;
-
+            if (!name || !email || !phone || !address) return alert("Fill all details!");
+            if (!/^[6-9]\d{9}$/.test(phone)) return alert("Invalid Phone Number");
+            const btn = document.getElementById('send-otp-btn'); btn.innerText = "Sending..."; btn.disabled = true;
             generatedOTP = Math.floor(100000 + Math.random() * 900000);
             userDataTemp = { name: name.toUpperCase(), email, phone, address: address.toUpperCase() };
-
-            const templateParams = {
-                email: email, 
-                to_name: name,
-                passcode: generatedOTP 
-            };
-
-            emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+            emailjs.send(SERVICE_ID, TEMPLATE_ID, { to_name: name, email: email, passcode: generatedOTP })
                 .then(() => {
                     document.getElementById('auth-section').classList.add('hidden');
                     document.getElementById('otp-section').classList.remove('hidden');
-                    document.getElementById('otp-msg').innerText = "We sent an OTP code to " + email;
-                    btn.innerText = "Send Code to Email"; btn.disabled = false;
-                }, (err) => {
-                    alert("Email error! Please check your Gmail connection in EmailJS.");
-                    btn.innerText = "Send Code to Email"; btn.disabled = false;
-                });
+                }, (err) => { alert("Error sending OTP"); btn.disabled = false; });
         }
 
         function verifyOTP() {
-            const input = document.getElementById('otp-input').value;
-            if (input == generatedOTP) {
-                db.ref('users/' + userDataTemp.phone).set(userDataTemp).then(() => {
-                    alert("Verification Successful!");
-                    loginUser(userDataTemp);
-                });
-            } else {
-                alert("Wrong Code! Check your email inbox or spam.");
-            }
+            if (document.getElementById('otp-input').value == generatedOTP) {
+                db.ref('users/' + userDataTemp.phone).set(userDataTemp).then(() => loginUser(userDataTemp));
+            } else { alert("Wrong Code!"); }
         }
 
         function loginUser(u) {
@@ -188,16 +170,32 @@
             loadProducts(); showPage('shop');
         }
 
-        function logout() { localStorage.clear(); location.reload(); }
-
         function loadProducts() {
             db.ref('products').on('value', snap => {
-                const list = document.getElementById('product-list'); list.innerHTML = "";
+                const list = document.getElementById('product-list');
+                list.innerHTML = "";
                 snap.forEach(child => {
                     const p = child.val();
                     const card = document.createElement('div');
-                    card.className = "glass p-3 rounded-[2.5rem] product-card";
-                    card.innerHTML = `<img src="${p.img || p.images?.[0]}" class="w-full h-32 object-cover rounded-[1.5rem] mb-2"><h3 class="font-bold text-[10px] truncate uppercase px-1 tracking-tight">${p.name}</h3><div class="flex justify-between items-center mt-2 px-1"><p class="text-sky-400 font-black text-[11px]">Rs. ${p.price}</p><span class="text-[8px] bg-sky-500/20 text-sky-400 font-bold px-1.5 py-0.5 rounded uppercase">Order</span></div>`;
+                    // IMPROVED CARD STYLING
+                    card.className = "glass p-2 rounded-[2rem] product-card flex flex-col h-full";
+                    const imgUrl = p.img || (p.images ? p.images[0] : '');
+                    card.innerHTML = `
+                        <div class="w-full h-44 overflow-hidden rounded-[1.5rem] mb-3 bg-black/20">
+                            <img src="${imgUrl}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex flex-col flex-1 px-1">
+                            <h3 class="font-bold text-xs text-white leading-tight mb-2 line-clamp-2 uppercase min-h-[2.5rem]">
+                                ${p.name}
+                            </h3>
+                            <div class="mt-auto flex justify-between items-end pb-1">
+                                <div class="flex flex-col">
+                                    <span class="text-[8px] text-slate-500 font-bold uppercase">Price</span>
+                                    <span class="text-sky-400 font-black text-sm">Rs. ${p.price}</span>
+                                </div>
+                                <button class="bg-sky-500 text-white text-[10px] font-black px-4 py-2 rounded-xl uppercase tracking-tighter shadow-lg shadow-sky-500/20">Buy</button>
+                            </div>
+                        </div>`;
                     card.onclick = () => { selectedProduct = p; togglePaymentModal(true); };
                     list.appendChild(card);
                 });
@@ -206,9 +204,8 @@
 
         function togglePaymentModal(s) {
             if(s) {
-                const amt = selectedProduct.price;
-                document.getElementById('pay-amt').innerText = "Rs. " + amt;
-                const upi = `upi://pay?pa=9906928968@pnb&pn=SONAM TASHI&am=${amt}&cu=INR`;
+                document.getElementById('pay-amt').innerText = "Rs. " + selectedProduct.price;
+                const upi = `upi://pay?pa=9906928968@pnb&pn=SONAM TASHI&am=${selectedProduct.price}&cu=INR`;
                 document.getElementById('dynamic-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upi)}`;
             }
             document.getElementById('payment-modal').classList.toggle('hidden', !s);
@@ -217,8 +214,8 @@
         function confirmOrder() {
             const utr = document.getElementById('pay-utr').value.trim();
             const file = document.getElementById('pay-img').files[0];
-            if(!file || !utr) return alert("Proof and UTR required!");
-            const btn = document.getElementById('confirm-btn'); btn.innerText = "Processing..."; btn.disabled = true;
+            if(!file || !utr) return alert("Screenshot and ID required!");
+            const btn = document.getElementById('confirm-btn'); btn.innerText = "SENDING..."; btn.disabled = true;
             const reader = new FileReader();
             reader.onload = (e) => {
                 const data = { item: selectedProduct.name, price: selectedProduct.price, userName: currentUser.name, userPhone: currentUser.phone, userAddress: currentUser.address, utr: utr.toUpperCase(), proofImg: e.target.result, status: 'Reviewing', time: new Date().toLocaleString() };
@@ -249,6 +246,8 @@
                 });
             });
         }
+
+        function logout() { localStorage.clear(); location.reload(); }
 
         window.onload = () => {
             setTimeout(() => {
