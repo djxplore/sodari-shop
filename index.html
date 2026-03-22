@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sodari Online - Verified Shop</title>
+    <title>Sodari Online Shop - Verified</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Firebase SDKs -->
@@ -16,10 +16,12 @@
         :root { --primary: #38bdf8; --bg-gradient: radial-gradient(circle at top right, #0f172a, #020617); }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-gradient); color: white; overflow-x: hidden; min-height: 100vh; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
-        .hidden { display: none !important; }
         .nav-btn { color: #94a3b8; transition: 0.3s; display: flex; flex-direction: column; align-items: center; font-size: 11px; font-weight: 700; }
         .nav-active { color: var(--primary); transform: translateY(-3px); }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .hidden { display: none !important; }
+        .product-card { transition: transform 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+        @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .dialog-content { animation: slideInUp 0.3s ease-out; }
     </style>
 </head>
 <body>
@@ -27,71 +29,74 @@
     <!-- Splash Screen -->
     <div id="splash" class="fixed inset-0 bg-[#020617] flex flex-col items-center justify-center z-[10000]">
         <div class="w-16 h-16 bg-sky-500 rounded-2xl rotate-45 flex items-center justify-center animate-bounce text-white font-black text-2xl">S</div>
-        <p class="mt-8 text-sky-400 font-bold tracking-widest animate-pulse uppercase">Sodari Online</p>
+        <p class="mt-8 text-sky-400 font-bold tracking-widest animate-pulse uppercase">Sodari Verified</p>
     </div>
 
-    <!-- Auth Section: Verified Google Account Only -->
+    <!-- 1. Google Verification Screen -->
     <div id="auth-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
         <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl border border-white/5">
             <h2 class="text-3xl font-extrabold mb-2 tracking-tight uppercase">Welcome</h2>
-            <p class="text-slate-400 text-sm mb-8 font-medium">Use your real Google account to continue</p>
+            <p class="text-slate-400 text-sm mb-8 font-medium">Verify your Gmail to start shopping</p>
             
             <button onclick="signInWithGoogle()" class="w-full bg-white text-black p-4 rounded-2xl font-bold flex items-center justify-center gap-3 active:scale-95 transition mb-4 shadow-xl">
                 <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-6 h-6">
-                Verify with Google
+                Continue with Google
             </button>
-            <p class="text-[9px] text-slate-500 uppercase tracking-widest">Only Verified Gmail Accepted</p>
+            <p class="text-[9px] text-slate-500 uppercase tracking-widest">Only Real Google Accounts Accepted</p>
         </div>
     </div>
 
-    <!-- Real Info Form (After Google Login) -->
-    <div id="reg-details-section" class="min-h-screen flex flex-col items-center justify-center p-6 hidden text-center">
-        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] border border-sky-500/20 shadow-2xl">
-            <h2 class="text-2xl font-extrabold mb-1">REAL DETAILS</h2>
+    <!-- 2. Profile Details Screen (Strict Validation) -->
+    <div id="reg-details-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
+        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl border border-sky-500/20">
+            <h2 class="text-2xl font-extrabold mb-1 uppercase">Complete Setup</h2>
             <p id="reg-email-display" class="text-sky-400 text-[10px] font-bold mb-8"></p>
             
             <div class="space-y-4 text-left">
                 <div>
-                    <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Full Name</label>
-                    <input type="text" id="reg-name" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="Real Name">
+                    <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Your Full Name</label>
+                    <input type="text" id="reg-name" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="Full Name">
                 </div>
                 <div>
-                    <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Real Phone (10 Digits)</label>
+                    <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Phone Number (10 Digit)</label>
                     <input type="number" id="reg-phone" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="98XXXXXXXX">
                 </div>
                 <div>
                     <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Delivery Address</label>
-                    <input type="text" id="reg-address" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="City, Area, Ward">
+                    <input type="text" id="reg-address" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="City, Area, Ward No.">
                 </div>
                 
-                <button onclick="completeRegistration()" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition mt-4 uppercase tracking-widest">Create Verified Account</button>
+                <button onclick="completeRegistration()" id="reg-finish-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition mt-4 uppercase tracking-widest">Create Account</button>
             </div>
         </div>
     </div>
 
-    <!-- Main App Content -->
+    <!-- 3. Main Application -->
     <div id="main-app" class="hidden">
-        <header class="p-5 flex justify-between items-center glass sticky top-0 z-50">
+        <header class="p-5 flex justify-between items-center glass sticky top-0 z-50 border-b border-white/5">
             <div>
-                <p class="text-[10px] text-sky-400 font-black uppercase">Namaste,</p>
+                <p class="text-[10px] text-sky-400 font-black uppercase">Verified User,</p>
                 <h1 id="header-user-name" class="font-extrabold text-lg truncate max-w-[150px]">Guest</h1>
             </div>
             <div onclick="showPage('profile')" class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center font-black" id="nav-initial">S</div>
         </header>
 
         <div id="page-shop" class="page-content p-4 pb-32">
+            <div class="mb-6 p-6 bg-gradient-to-br from-blue-600 to-sky-500 rounded-[2rem] shadow-xl">
+                <h2 class="text-2xl font-black leading-tight uppercase tracking-widest">Official <br>Sodari Shop</h2>
+            </div>
             <div id="product-list" class="grid grid-cols-2 gap-4"></div>
         </div>
 
         <div id="page-history" class="page-content p-4 hidden pb-32">
-            <h2 class="text-2xl font-extrabold mb-6">Orders History</h2>
+            <h2 class="text-2xl font-extrabold mb-6">Order Tracking</h2>
             <div id="order-history" class="space-y-4"></div>
         </div>
 
         <div id="page-profile" class="page-content p-6 hidden pb-32 text-center">
              <div class="glass p-8 rounded-[2.5rem] mb-6 border-white/5">
-                <div class="w-20 h-20 bg-sky-500 rounded-3xl mx-auto mb-4 flex items-center justify-center text-3xl font-black shadow-xl" id="prof-initial">S</div>
-                <h3 id="prof-name" class="text-xl font-bold uppercase tracking-tight">...</h3>
+                <div class="w-20 h-20 bg-sky-500 rounded-3xl mx-auto mb-4 flex items-center justify-center text-3xl font-black" id="prof-initial">S</div>
+                <h3 id="prof-name" class="text-xl font-bold uppercase tracking-tight">User</h3>
                 <p id="prof-email" class="text-sky-400 text-[10px] font-bold mb-2"></p>
                 <p id="prof-phone" class="text-slate-400 text-xs font-bold"></p>
                 <p id="prof-address" class="text-slate-500 text-[10px] mt-1 uppercase"></p>
@@ -108,9 +113,9 @@
 
     <!-- QR Payment Modal -->
     <div id="payment-modal" class="fixed inset-0 hidden flex items-center justify-center p-4 bg-black/95 z-[9999]">
-        <div class="glass dialog-content w-full max-w-sm p-6 rounded-[2.5rem] shadow-2xl border border-sky-500/30">
+        <div class="glass dialog-content w-full max-w-sm p-6 rounded-[2.5rem] shadow-2xl border border-sky-500/30 overflow-y-auto max-h-[90vh]">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-black text-sky-400 uppercase">Secure Pay</h3>
+                <h3 class="text-lg font-black text-sky-400 uppercase">Secure Payment</h3>
                 <button onclick="togglePaymentModal(false)" class="text-slate-400">✕</button>
             </div>
             <div class="bg-blue-600/10 p-4 rounded-2xl text-center mb-4 border border-blue-500/20 text-white">
@@ -119,18 +124,24 @@
             </div>
             <div class="bg-white p-4 rounded-2xl mb-4 flex flex-col items-center">
                 <img id="dynamic-qr" src="" class="w-60 h-60 rounded-lg">
-                <p class="text-[12px] text-slate-900 font-bold mt-2 uppercase">SONAM TASHI</p>
+                <div class="text-center mt-3">
+                   <p class="text-[14px] text-slate-900 font-black uppercase">SONAM TASHI</p>
+                   <p class="text-[10px] text-blue-600 font-bold uppercase">VPA: 9906928968@pnb</p>
+                </div>
             </div>
-            <div class="space-y-3 mb-4">
-                <input type="file" id="pay-img" accept="image/*" class="w-full text-xs text-slate-400 file:bg-sky-500 file:text-white file:border-0 file:p-2 file:rounded-lg">
-                <input type="text" id="pay-utr" placeholder="Transaction ID (UTR)" class="w-full p-4 bg-slate-950 border border-slate-700 rounded-xl outline-none text-center uppercase font-mono">
+            <div class="space-y-4 mb-4">
+                <div class="p-4 bg-slate-950 rounded-xl border border-slate-700">
+                    <p class="text-[9px] text-slate-500 font-bold uppercase mb-2 text-center">Upload Payment Screenshot</p>
+                    <input type="file" id="pay-img" accept="image/*" class="w-full text-xs text-slate-400 file:bg-sky-500 file:text-white file:border-0 file:p-2 file:rounded-lg">
+                </div>
+                <input type="text" id="pay-utr" placeholder="Transaction ID (UTR)" class="w-full p-4 bg-slate-950 border border-slate-700 rounded-xl text-center uppercase font-mono outline-none text-white focus:border-sky-500">
             </div>
-            <button onclick="confirmOrder()" id="confirm-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition">Confirm Payment</button>
+            <button onclick="confirmOrder()" id="confirm-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition tracking-widest uppercase">Confirm Payment</button>
         </div>
     </div>
 
     <script>
-        // --- FIREBASE CONFIG ---
+        // --- FIREBASE CONFIGURATION ---
         const firebaseConfig = { 
             apiKey: "AIzaSyCPfeQuHLUciwDha9g2y3_Wc4eLvjjkxW4", 
             databaseURL: "https://sodari-online-default-rtdb.firebaseio.com",
@@ -152,7 +163,7 @@
                 tempUser = { name: user.displayName, email: user.email };
                 checkUserInDB(user.email);
             }).catch((err) => {
-                alert("Google verification failed. Make sure you added your domain in Firebase!");
+                alert("Google verification failed. Make sure you added 'djxplore.github.io' in Firebase Authorized Domains!");
             });
         }
 
@@ -176,12 +187,12 @@
             const phone = document.getElementById('reg-phone').value.trim();
             const address = document.getElementById('reg-address').value.trim();
 
-            // REAL DATA CHECK: Number must be 10 digits starting with 9, 8, 7, 6
+            // REAL DATA VALIDATION: 10 Digits starting with 9, 8, 7, 6
             const phonePattern = /^[6-9]\d{9}$/; 
 
-            if (name.length < 3) return alert("Please enter your real full name.");
+            if (name.length < 3) return alert("Error: Enter your real full name.");
             if (!phonePattern.test(phone)) return alert("Error: Please enter a real 10-digit mobile number!");
-            if (address.length < 5) return alert("Please enter a proper delivery address.");
+            if (address.length < 5) return alert("Error: Enter a clear delivery address.");
 
             const userData = { ...tempUser, name, phone, address, verified: true };
             const key = userData.email.replace(/\./g, ',');
@@ -237,6 +248,7 @@
                 const upi = `upi://pay?pa=9906928968@pnb&pn=SONAM TASHI&am=${selectedProduct.price}&cu=INR`;
                 document.getElementById('dynamic-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upi)}`;
                 document.getElementById('pay-utr').value = "";
+                document.getElementById('pay-img').value = "";
             }
             document.getElementById('payment-modal').classList.toggle('hidden', !s);
         }
@@ -244,19 +256,19 @@
         function confirmOrder() {
             const utr = document.getElementById('pay-utr').value.trim();
             const file = document.getElementById('pay-img').files[0];
-            if(!file || !utr) return alert("Upload screenshot and enter Ref ID!");
+            if(!file || !utr) return alert("Upload payment screenshot and enter Ref ID!");
 
-            const btn = document.getElementById('confirm-btn'); btn.innerText = "SENDING..."; btn.disabled = true;
+            const btn = document.getElementById('confirm-btn'); btn.innerText = "SENDING ORDER..."; btn.disabled = true;
             const reader = new FileReader();
             reader.onload = (e) => {
                 const data = { 
                     item: selectedProduct.name, price: selectedProduct.price, 
-                    userName: currentUser.name, userEmail: currentUser.email, userPhone: currentUser.phone,
+                    userName: currentUser.name, userEmail: currentUser.email, userPhone: currentUser.phone, userAddress: currentUser.address,
                     utr: utr.toUpperCase(), proofImg: e.target.result, 
                     status: 'Pending', time: new Date().toLocaleString() 
                 };
                 db.ref('orders').push(data).then(() => {
-                    alert("Verified Order Placed!"); togglePaymentModal(false); showPage('history');
+                    alert("Order Submitted Successfully!"); togglePaymentModal(false); showPage('history');
                     btn.innerText = "Confirm Payment"; btn.disabled = false;
                 });
             };
@@ -277,7 +289,7 @@
                 snap.forEach(child => {
                     const o = child.val();
                     if(o.userEmail === currentUser.email) {
-                        hist.innerHTML = `<div class="glass p-5 rounded-3xl mb-4 text-left shadow-lg border-white/5"><div class="flex justify-between mb-2 text-[10px] font-bold uppercase"><h4>${o.item}</h4><span class="text-sky-400">${o.status}</span></div><p class="text-sky-400 font-black text-lg">Rs. ${o.price}</p><p class="text-[9px] text-slate-500 mt-2">${o.time}</p></div>` + hist.innerHTML;
+                        hist.innerHTML = `<div class="glass p-5 rounded-3xl mb-4 text-left border-white/5 shadow-lg"><div class="flex justify-between mb-2 text-[10px] font-bold uppercase"><h4>${o.item}</h4><span class="text-sky-400">${o.status}</span></div><p class="text-sky-400 font-black text-lg">Rs. ${o.price}</p><p class="text-[9px] text-slate-500 mt-2">${o.time}</p></div>` + hist.innerHTML;
                     }
                 });
             });
