@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sodari Online Shop - Official</title>
+    <title>Sodari Online Shop - Verified</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #38bdf8; --bg-gradient: radial-gradient(circle at top right, #0f172a, #020617); }
@@ -15,50 +19,51 @@
         .nav-btn { color: #94a3b8; transition: 0.3s; display: flex; flex-direction: column; align-items: center; font-size: 11px; font-weight: 700; }
         .nav-active { color: var(--primary); transform: translateY(-3px); }
         .hidden { display: none !important; }
-        .product-card { transition: transform 0.2s; border: 1px solid rgba(255,255,255,0.05); }
-        input { color: white !important; }
+        input { color: white !important; background: rgba(15, 23, 42, 0.6) !important; border: 1px solid rgba(51, 65, 85, 1) !important; outline: none; transition: 0.3s; }
+        input:focus { border-color: #38bdf8 !important; box-shadow: 0 0 10px rgba(56, 189, 248, 0.2); }
+        .product-card { transition: 0.2s; border: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
 
     <div id="splash" class="fixed inset-0 bg-[#020617] flex flex-col items-center justify-center z-[10000]">
         <div class="w-16 h-16 bg-sky-500 rounded-2xl rotate-45 flex items-center justify-center animate-bounce text-white font-black text-2xl">S</div>
-        <p class="mt-8 text-sky-400 font-bold tracking-widest animate-pulse uppercase">Sodari Shop</p>
+        <p class="mt-8 text-sky-400 font-bold tracking-widest animate-pulse uppercase">OTP Verification</p>
     </div>
 
-    <!-- STRICT REGISTRATION SECTION -->
+    <!-- REGISTRATION FORM -->
     <div id="auth-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
-        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl border border-white/5">
-            <h2 class="text-3xl font-extrabold mb-2 tracking-tight uppercase">WELCOME</h2>
-            <p class="text-slate-400 text-xs mb-8">Register with real details to continue</p>
-            
+        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl">
+            <h2 class="text-3xl font-extrabold mb-1 uppercase tracking-tighter">Welcome</h2>
+            <p class="text-slate-400 text-[10px] mb-8 font-bold uppercase tracking-widest">Verify Email to Create Account</p>
             <div class="space-y-4 text-left">
-                <div>
-                    <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Full Name (First & Last)</label>
-                    <input type="text" id="reg-name" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:border-sky-500" placeholder="e.g. Ram Chaudhary">
-                </div>
-                <div>
-                    <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Real Mobile Number</label>
-                    <input type="number" id="reg-phone" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:border-sky-500" placeholder="98XXXXXXXX">
-                </div>
-                <div>
-                    <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Complete Delivery Address</label>
-                    <input type="text" id="reg-address" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:border-sky-500" placeholder="City, Ward No, Tole">
-                </div>
-                
-                <button onclick="handleStrictRegistration()" id="reg-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition mt-4 uppercase">Create Account</button>
+                <input type="text" id="reg-name" class="w-full p-4 rounded-xl" placeholder="Full Name (First & Last)">
+                <input type="email" id="reg-email" class="w-full p-4 rounded-xl" placeholder="Your Gmail Address">
+                <input type="number" id="reg-phone" class="w-full p-4 rounded-xl" placeholder="10-Digit Phone Number">
+                <input type="text" id="reg-address" class="w-full p-4 rounded-xl" placeholder="Full Delivery Address">
+                <button onclick="sendOTP()" id="send-otp-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition uppercase mt-2">Send OTP to Email</button>
             </div>
-            <p class="text-[9px] text-slate-500 mt-6 uppercase tracking-widest">We verify every order details</p>
+            <p class="text-[9px] text-slate-500 mt-6 uppercase tracking-widest">Only Real Information Accepted</p>
+        </div>
+    </div>
+
+    <!-- OTP VERIFICATION SCREEN -->
+    <div id="otp-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
+        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] border border-sky-500/30 shadow-2xl">
+            <h2 class="text-2xl font-black mb-2 uppercase">Verify OTP</h2>
+            <p id="otp-msg" class="text-slate-400 text-xs mb-8"></p>
+            <div class="space-y-4">
+                <input type="number" id="otp-input" class="w-full p-5 rounded-xl text-center text-2xl font-bold tracking-[10px]" placeholder="000000">
+                <button onclick="verifyOTP()" id="verify-btn" class="w-full bg-green-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition">ACTIVATE ACCOUNT</button>
+                <p onclick="location.reload()" class="text-slate-500 text-[10px] uppercase font-bold underline cursor-pointer mt-4">Edit My Details</p>
+            </div>
         </div>
     </div>
 
     <!-- MAIN APP CONTENT -->
     <div id="main-app" class="hidden">
         <header class="p-5 flex justify-between items-center glass sticky top-0 z-50">
-            <div>
-                <p class="text-[10px] text-sky-400 font-black uppercase">Official Shop,</p>
-                <h1 id="header-user-name" class="font-extrabold text-lg truncate max-w-[150px]">Guest</h1>
-            </div>
+            <div><p class="text-[10px] text-sky-400 font-black uppercase tracking-widest">Official Shop,</p><h1 id="header-user-name" class="font-extrabold text-lg truncate max-w-[150px]">Guest</h1></div>
             <div onclick="showPage('profile')" class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center font-black" id="nav-initial">S</div>
         </header>
         <div id="page-shop" class="page-content p-4 pb-32"><div id="product-list" class="grid grid-cols-2 gap-4"></div></div>
@@ -66,23 +71,24 @@
         <div id="page-profile" class="page-content p-6 hidden pb-32 text-center">
              <div class="glass p-8 rounded-[2.5rem] mb-6 border-white/5">
                 <div class="w-20 h-20 bg-sky-500 rounded-3xl mx-auto mb-4 flex items-center justify-center text-3xl font-black shadow-xl" id="prof-initial">S</div>
-                <h3 id="prof-name" class="text-xl font-bold uppercase">User</h3>
-                <p id="prof-phone" class="text-sky-400 text-sm font-bold mb-1"></p>
-                <p id="prof-address" class="text-slate-500 text-[10px] mt-1 uppercase"></p>
+                <h3 id="prof-name" class="text-xl font-bold uppercase">...</h3>
+                <p id="prof-email" class="text-sky-400 text-[10px] font-bold mb-1"></p>
+                <p id="prof-phone" class="text-slate-400 text-xs font-bold"></p>
+                <p id="prof-address" class="text-slate-500 text-[10px] mt-2 uppercase"></p>
             </div>
-            <button onclick="logout()" class="w-full bg-red-500/10 text-red-500 p-5 rounded-2xl font-black border border-red-500/20 uppercase">Logout</button>
+            <button onclick="logout()" class="w-full bg-red-500/10 text-red-500 p-5 rounded-2xl font-black border border-red-500/20 uppercase tracking-widest">Logout Account</button>
         </div>
-        <nav class="fixed bottom-0 w-full glass flex justify-around p-4 rounded-t-[2.5rem] z-[1000] border-t border-white/10">
+        <nav class="fixed bottom-0 w-full glass flex justify-around p-4 rounded-t-[2.5rem] z-[1000] border-t border-white/10 shadow-2xl">
             <button onclick="showPage('shop')" id="btn-shop" class="nav-btn nav-active">🏠<span>Home</span></button>
             <button onclick="showPage('history')" id="btn-history" class="nav-btn">📦<span>Orders</span></button>
             <button onclick="showPage('profile')" id="btn-profile" class="nav-btn">👤<span>Profile</span></button>
         </nav>
     </div>
 
-    <!-- PAYMENT MODAL -->
+    <!-- Payment Modal -->
     <div id="payment-modal" class="fixed inset-0 hidden flex items-center justify-center p-4 bg-black/95 z-[9999]">
-        <div class="glass dialog-content w-full max-w-sm p-6 rounded-[2.5rem] border border-sky-500/30">
-            <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-black text-sky-400 uppercase">Secure Pay</h3><button onclick="togglePaymentModal(false)" class="text-slate-400">✕</button></div>
+        <div class="glass dialog-content w-full max-w-sm p-6 rounded-[2.5rem] shadow-2xl border border-sky-500/30">
+            <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-black text-sky-400 uppercase text-center">Secure Payment</h3><button onclick="togglePaymentModal(false)" class="text-slate-400">✕</button></div>
             <div class="bg-blue-600/10 p-4 rounded-2xl text-center mb-4 text-white"><h2 id="pay-amt" class="text-3xl font-black">Rs. 0</h2></div>
             <div class="bg-white p-4 rounded-2xl mb-4 flex flex-col items-center">
                 <img id="dynamic-qr" src="" class="w-60 h-60 rounded-lg">
@@ -92,11 +98,16 @@
                 <input type="file" id="pay-img" accept="image/*" class="w-full text-xs text-slate-400">
                 <input type="text" id="pay-utr" placeholder="Transaction ID (UTR)" class="w-full p-4 bg-slate-950 border border-slate-700 rounded-xl text-center uppercase font-mono text-white outline-none">
             </div>
-            <button onclick="confirmOrder()" id="confirm-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg">Confirm Order</button>
+            <button onclick="confirmOrder()" id="confirm-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition">Confirm Order</button>
         </div>
     </div>
 
     <script>
+        // --- 1. CONFIGURATION (Updated with your IDs) ---
+        const SERVICE_ID = "service_ayu880i";
+        const TEMPLATE_ID = "template_9y1rbhq";
+        const PUBLIC_KEY = "iPOwwrMm5Sf2UrudJ";
+
         const firebaseConfig = { 
             apiKey: "AIzaSyCPfeQuHLUciwDha9g2y3_Wc4eLvjjkxW4", 
             databaseURL: "https://sodari-online-default-rtdb.firebaseio.com"
@@ -104,58 +115,89 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        (function(){
+            emailjs.init(PUBLIC_KEY); 
+        })();
+
+        let generatedOTP = null;
+        let userDataTemp = null;
         let currentUser = JSON.parse(localStorage.getItem('sodari_active_user'));
         let selectedProduct = null;
 
-        // --- ADVANCED STRICT REGISTRATION ---
-        function handleStrictRegistration() {
+        // --- 2. REGISTRATION & OTP LOGIC ---
+        function sendOTP() {
             const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
             const phone = document.getElementById('reg-phone').value.trim();
             const address = document.getElementById('reg-address').value.trim();
 
-            // 1. Name Validation (Must have space between First and Last name)
-            const nameCheck = name.split(/\s+/).filter(word => word.length > 0);
-            if (nameCheck.length < 2) return alert("Error: Please enter your Full Name (First and Last name).");
+            const phonePattern = /^[6-9]\d{9}$/; 
+            if (name.split(/\s+/).length < 2) return alert("Enter Full Name (First and Last).");
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert("Enter a real Email address.");
+            if (!phonePattern.test(phone)) return alert("Enter a real 10-digit mobile number.");
+            if (/(.)\1{5}/.test(phone)) return alert("Error: Fake phone pattern detected (e.g. 111111).");
+            if (address.length < 10) return alert("Enter a detailed delivery address.");
 
-            // 2. Phone Validation (10 digits starting with 6-9)
-            const phonePattern = /^[6-9]\d{9}$/;
-            if (!phonePattern.test(phone)) return alert("Error: Enter a valid 10-digit mobile number!");
+            const btn = document.getElementById('send-otp-btn');
+            btn.innerText = "Sending Code..."; btn.disabled = true;
 
-            // 3. Block Repeating Numbers (e.g. 111111, 000000, 9811111111)
-            const isRepeating = /(.)\1{5}/.test(phone);
-            if (isRepeating) return alert("Error: Fake phone pattern detected! Please use a real number.");
+            generatedOTP = Math.floor(100000 + Math.random() * 900000);
+            userDataTemp = { name: name.toUpperCase(), email, phone, address: address.toUpperCase() };
 
-            // 4. Address Validation (Must be at least 10 characters)
-            if (address.length < 10) return alert("Error: Please enter a complete and detailed delivery address.");
+            const templateParams = {
+                to_name: name,
+                email: email,
+                passcode: generatedOTP 
+            };
 
-            const userData = { name: name.toUpperCase(), phone, address: address.toUpperCase(), verified: true };
-            
-            db.ref('users/' + phone).set(userData).then(() => {
-                alert("Real Account Verified & Created!");
-                loginUser(userData);
-            });
+            emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+                .then(() => {
+                    document.getElementById('auth-section').classList.add('hidden');
+                    document.getElementById('otp-section').classList.remove('hidden');
+                    document.getElementById('otp-msg').innerText = "We sent a 6-digit code to " + email;
+                }, (err) => {
+                    alert("Email service error. Try again.");
+                    btn.innerText = "Send OTP to Email"; btn.disabled = false;
+                });
         }
 
+        function verifyOTP() {
+            const input = document.getElementById('otp-input').value;
+            const btn = document.getElementById('verify-btn');
+            if (input == generatedOTP) {
+                btn.innerText = "Verified..."; btn.disabled = true;
+                db.ref('users/' + userDataTemp.phone).set(userDataTemp).then(() => {
+                    alert("Verification Successful!");
+                    loginUser(userDataTemp);
+                });
+            } else {
+                alert("Wrong Code! Check your email inbox or spam.");
+            }
+        }
+
+        // --- 3. APP & UI LOGIC ---
         function loginUser(u) {
             localStorage.setItem('sodari_active_user', JSON.stringify(u));
             currentUser = u;
             document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('otp-section').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
-            initUI(); showPage('shop');
+            initUI();
         }
-
-        function logout() { localStorage.clear(); location.reload(); }
 
         function initUI() {
             document.getElementById('header-user-name').innerText = currentUser.name;
             document.getElementById('prof-name').innerText = currentUser.name;
+            document.getElementById('prof-email').innerText = currentUser.email;
             document.getElementById('prof-phone').innerText = "📞 " + currentUser.phone;
             document.getElementById('prof-address').innerText = "📍 " + currentUser.address;
             const init = currentUser.name[0].toUpperCase();
             document.getElementById('nav-initial').innerText = init;
             document.getElementById('prof-initial').innerText = init;
-            loadProducts();
+            loadProducts(); showPage('shop');
         }
+
+        function logout() { localStorage.clear(); location.reload(); }
 
         function loadProducts() {
             db.ref('products').on('value', snap => {
@@ -164,7 +206,7 @@
                     const p = child.val();
                     const card = document.createElement('div');
                     card.className = "glass p-3 rounded-[2.5rem] product-card";
-                    card.innerHTML = `<img src="${p.img || p.images?.[0]}" class="w-full h-32 object-cover rounded-[1.5rem] mb-2"><h3 class="font-bold text-[10px] truncate uppercase px-1">${p.name}</h3><div class="flex justify-between items-center mt-2 px-1"><p class="text-sky-400 font-black text-[11px]">Rs. ${p.price}</p><span class="text-[8px] bg-sky-500/20 text-sky-400 font-bold px-1.5 py-0.5 rounded">Order</span></div>`;
+                    card.innerHTML = `<img src="${p.img || p.images?.[0]}" class="w-full h-32 object-cover rounded-[1.5rem] mb-2"><h3 class="font-bold text-[10px] truncate uppercase px-1 tracking-tight">${p.name}</h3><div class="flex justify-between items-center mt-2 px-1"><p class="text-sky-400 font-black text-[11px]">Rs. ${p.price}</p><span class="text-[8px] bg-sky-500/20 text-sky-400 font-bold px-1.5 py-0.5 rounded uppercase">Order</span></div>`;
                     card.onclick = () => { selectedProduct = p; togglePaymentModal(true); };
                     list.appendChild(card);
                 });
@@ -173,9 +215,11 @@
 
         function togglePaymentModal(s) {
             if(s) {
-                document.getElementById('pay-amt').innerText = "Rs. " + selectedProduct.price;
-                const upi = `upi://pay?pa=9906928968@pnb&pn=SONAM TASHI&am=${selectedProduct.price}&cu=INR`;
+                const amount = selectedProduct.price;
+                document.getElementById('pay-amt').innerText = "Rs. " + amount;
+                const upi = `upi://pay?pa=9906928968@pnb&pn=SONAM TASHI&am=${amount}&cu=INR`;
                 document.getElementById('dynamic-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upi)}`;
+                document.getElementById('pay-utr').value = "";
             }
             document.getElementById('payment-modal').classList.toggle('hidden', !s);
         }
@@ -183,12 +227,15 @@
         function confirmOrder() {
             const utr = document.getElementById('pay-utr').value.trim();
             const file = document.getElementById('pay-img').files[0];
-            if(!file || !utr) return alert("Proof and ID required!");
-            const btn = document.getElementById('confirm-btn'); btn.innerText = "Processing..."; btn.disabled = true;
+            if(!file || !utr) return alert("Payment proof and UTR required!");
+            const btn = document.getElementById('confirm-btn'); btn.innerText = "SENDING..."; btn.disabled = true;
             const reader = new FileReader();
             reader.onload = (e) => {
-                const data = { item: selectedProduct.name, price: selectedProduct.price, userName: currentUser.name, userPhone: currentUser.phone, userAddress: currentUser.address, utr: utr.toUpperCase(), proofImg: e.target.result, status: 'Pending', time: new Date().toLocaleString() };
-                db.ref('orders').push(data).then(() => { alert("Order Placed!"); togglePaymentModal(false); showPage('history'); btn.innerText = "Confirm Order"; btn.disabled = false; });
+                const data = { item: selectedProduct.name, price: selectedProduct.price, userName: currentUser.name, userPhone: currentUser.phone, userAddress: currentUser.address, utr: utr.toUpperCase(), proofImg: e.target.result, status: 'Reviewing', time: new Date().toLocaleString() };
+                db.ref('orders').push(data).then(() => {
+                    alert("Order Submitted!"); togglePaymentModal(false); showPage('history');
+                    btn.innerText = "Confirm Order"; btn.disabled = false;
+                });
             };
             reader.readAsDataURL(file);
         }
@@ -207,7 +254,7 @@
                 snap.forEach(child => {
                     const o = child.val();
                     if(o.userPhone === currentUser.phone) {
-                        hist.innerHTML = `<div class="glass p-5 rounded-3xl mb-4 text-left shadow-lg"><div class="flex justify-between mb-2 text-[10px] font-bold uppercase"><h4>${o.item}</h4><span class="text-sky-400">${o.status}</span></div><p class="text-sky-400 font-black text-lg">Rs. ${o.price}</p><p class="text-[9px] text-slate-500 mt-2">${o.time}</p></div>` + hist.innerHTML;
+                        hist.innerHTML = `<div class="glass p-5 rounded-3xl mb-4 text-left border-white/5 shadow-lg"><div class="flex justify-between mb-2 text-[10px] font-bold uppercase"><h4>${o.item}</h4><span class="text-sky-400">${o.status}</span></div><p class="text-sky-400 font-black text-lg">Rs. ${o.price}</p><p class="text-[9px] text-slate-500 mt-2">${o.time}</p></div>` + hist.innerHTML;
                     }
                 });
             });
@@ -218,7 +265,7 @@
                 document.getElementById('splash').classList.add('hidden');
                 if(currentUser) loginUser(currentUser);
                 else document.getElementById('auth-section').classList.remove('hidden');
-            }, 1200);
+            }, 1500);
         };
     </script>
 </body>
