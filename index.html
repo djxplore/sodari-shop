@@ -17,16 +17,19 @@
         .nav-active { color: var(--primary); transform: translateY(-3px); }
         .hidden { display: none !important; }
         .product-card { transition: transform 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+        @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .dialog-content { animation: slideInUp 0.3s ease-out; }
     </style>
 </head>
 <body>
 
+    <!-- Splash Screen -->
     <div id="splash" class="fixed inset-0 bg-[#020617] flex flex-col items-center justify-center z-[10000]">
         <div class="w-16 h-16 bg-sky-500 rounded-2xl rotate-45 flex items-center justify-center animate-bounce text-white font-black text-2xl">S</div>
         <p class="mt-8 text-sky-400 font-bold tracking-widest animate-pulse uppercase">Sodari Online</p>
     </div>
 
-    <!-- AUTH SECTION WITH BROWSER BACKUP -->
+    <!-- Login Section -->
     <div id="auth-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
         <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl border border-white/5">
             <h2 class="text-3xl font-extrabold mb-2 tracking-tight uppercase">Welcome</h2>
@@ -37,35 +40,39 @@
                 Continue with Google
             </button>
 
-            <!-- BROWSER FIX BUTTON: यो बटनले APK मा लगइन नहुने समस्या समाधान गर्छ -->
+            <!-- APK FIX BUTTON -->
             <a href="https://djxplore.github.io/sodari-shop/" target="_blank" class="block w-full bg-sky-500/10 text-sky-400 p-4 rounded-xl font-bold text-[10px] uppercase border border-sky-500/20 active:bg-sky-500/30 transition">
                 🌐 Login error in App? Click here
             </a>
 
-            <p class="text-[9px] text-slate-500 mt-6 uppercase tracking-widest font-bold">Only Real Gmail Accepted</p>
+            <p class="text-[9px] text-slate-500 mt-6 uppercase tracking-widest font-bold">Safe & Verified Login</p>
         </div>
     </div>
 
+    <!-- Profile Details (Only Real Info) -->
     <div id="reg-details-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
         <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl border border-sky-500/20">
             <h2 class="text-2xl font-extrabold mb-1 uppercase">Profile Setup</h2>
             <p id="reg-email-display" class="text-sky-400 text-[10px] font-bold mb-8"></p>
             <div class="space-y-4 text-left">
-                <input type="text" id="reg-name" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="Full Name">
+                <input type="text" id="reg-name" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="Your Full Name">
                 <input type="number" id="reg-phone" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="Real Phone (10 Digit)">
                 <input type="text" id="reg-address" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="Delivery Address">
-                <button onclick="completeRegistration()" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg mt-4 uppercase">Finish Setup</button>
+                <button onclick="completeRegistration()" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg mt-4 uppercase">Start Shopping</button>
             </div>
         </div>
     </div>
 
+    <!-- Main App UI -->
     <div id="main-app" class="hidden">
         <header class="p-5 flex justify-between items-center glass sticky top-0 z-50">
             <div><p class="text-[10px] text-sky-400 font-black uppercase">Namaste,</p><h1 id="header-user-name" class="font-extrabold text-lg truncate max-w-[150px]">Guest</h1></div>
             <div onclick="showPage('profile')" class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center font-black" id="nav-initial">S</div>
         </header>
+
         <div id="page-shop" class="page-content p-4 pb-32"><div id="product-list" class="grid grid-cols-2 gap-4"></div></div>
-        <div id="page-history" class="page-content p-4 hidden pb-32"><h2 class="text-2xl font-extrabold mb-6">Order History</h2><div id="order-history" class="space-y-4"></div></div>
+        <div id="page-history" class="page-content p-4 hidden pb-32 text-center"><h2 class="text-2xl font-extrabold mb-6">Order Status</h2><div id="order-history" class="space-y-4"></div></div>
+
         <div id="page-profile" class="page-content p-6 hidden pb-32 text-center">
              <div class="glass p-8 rounded-[2.5rem] mb-6 border-white/5">
                 <div class="w-20 h-20 bg-sky-500 rounded-3xl mx-auto mb-4 flex items-center justify-center text-3xl font-black shadow-xl" id="prof-initial">S</div>
@@ -74,8 +81,9 @@
                 <p id="prof-phone" class="text-slate-400 text-xs font-bold"></p>
                 <p id="prof-address" class="text-slate-500 text-[10px] mt-1 uppercase"></p>
             </div>
-            <button onclick="logout()" class="w-full bg-red-500/10 text-red-500 p-5 rounded-2xl font-black border border-red-500/20 uppercase">Logout</button>
+            <button onclick="logout()" class="w-full bg-red-500/10 text-red-500 p-5 rounded-2xl font-black border border-red-500/20 uppercase tracking-widest">Logout</button>
         </div>
+
         <nav class="fixed bottom-0 w-full glass flex justify-around p-4 rounded-t-[2.5rem] z-[1000] border-t border-white/10">
             <button onclick="showPage('shop')" id="btn-shop" class="nav-btn nav-active">🏠<span>Home</span></button>
             <button onclick="showPage('history')" id="btn-history" class="nav-btn">📦<span>Orders</span></button>
@@ -83,19 +91,19 @@
         </nav>
     </div>
 
+    <!-- QR Payment Modal -->
     <div id="payment-modal" class="fixed inset-0 hidden flex items-center justify-center p-4 bg-black/95 z-[9999]">
-        <div class="glass dialog-content w-full max-w-sm p-6 rounded-[2.5rem] shadow-2xl border border-sky-500/30">
+        <div class="glass dialog-content w-full max-w-sm p-6 rounded-[2.5rem] shadow-2xl border border-sky-500/30 overflow-y-auto max-h-[90vh]">
             <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-black text-sky-400 uppercase">Secure Pay</h3><button onclick="togglePaymentModal(false)" class="text-slate-400">✕</button></div>
             <div class="bg-blue-600/10 p-4 rounded-2xl text-center mb-4 text-white"><h2 id="pay-amt" class="text-3xl font-black">Rs. 0</h2></div>
             <div class="bg-white p-4 rounded-2xl mb-4 flex flex-col items-center">
-                <img id="dynamic-qr" src="" class="w-60 h-60 rounded-lg">
-                <p class="text-[12px] text-slate-900 font-bold mt-2 uppercase">SONAM TASHI</p>
+                <img id="dynamic-qr" src="" class="w-60 h-60 rounded-lg"><p class="text-[12px] text-slate-900 font-bold mt-2 uppercase">SONAM TASHI</p>
             </div>
-            <div class="space-y-3 mb-4">
+            <div class="space-y-4 mb-4">
                 <input type="file" id="pay-img" accept="image/*" class="w-full text-xs text-slate-400">
                 <input type="text" id="pay-utr" placeholder="Transaction ID (UTR)" class="w-full p-4 bg-slate-950 border border-slate-700 rounded-xl text-center uppercase font-mono text-white outline-none">
             </div>
-            <button onclick="confirmOrder()" id="confirm-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg">Confirm Payment</button>
+            <button onclick="confirmOrder()" id="confirm-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg uppercase">Confirm Payment</button>
         </div>
     </div>
 
@@ -103,7 +111,7 @@
         const firebaseConfig = { 
             apiKey: "AIzaSyCPfeQuHLUciwDha9g2y3_Wc4eLvjjkxW4", 
             databaseURL: "https://sodari-online-default-rtdb.firebaseio.com",
-            authDomain: "djxplore.github.io" 
+            authDomain: "sodari-online.firebaseapp.com" 
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -114,8 +122,9 @@
         let tempUser = null;
         let selectedProduct = null;
 
+        // AUTH LOGIC
         function signInWithGoogle() {
-            auth.signInWithRedirect(provider).catch((err) => alert("Error: " + err.message));
+            auth.signInWithRedirect(provider).catch((err) => alert("Login Error: " + err.message));
         }
 
         auth.getRedirectResult().then((result) => {
@@ -124,8 +133,6 @@
                 tempUser = { name: user.displayName, email: user.email };
                 checkUserInDB(user.email);
             }
-        }).catch((err) => {
-            if(err.code !== 'auth/no-auth-event') console.error(err);
         });
 
         function checkUserInDB(email) {
@@ -139,7 +146,7 @@
         function showRegistration() {
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('reg-details-section').classList.remove('hidden');
-            document.getElementById('reg-email-display').innerText = "Verified: " + tempUser.email;
+            document.getElementById('reg-email-display').innerText = "Verified Gmail: " + tempUser.email;
             document.getElementById('reg-name').value = tempUser.name;
         }
 
@@ -149,12 +156,12 @@
             const address = document.getElementById('reg-address').value.trim();
             const phonePattern = /^[6-9]\d{9}$/; 
 
-            if (name.length < 3) return alert("Enter full name.");
-            if (!phonePattern.test(phone)) return alert("Enter real 10-digit phone!");
-            if (address.length < 5) return alert("Enter address.");
+            if (name.length < 3) return alert("Enter real full name.");
+            if (!phonePattern.test(phone)) return alert("Enter a real 10-digit mobile number!");
+            if (address.length < 5) return alert("Enter proper delivery address.");
 
             const userData = { ...tempUser, name, phone, address, verified: true };
-            db.ref('users/' + userData.email.replace(/\./g, ',')).set(userData).then(() => { loginUser(userData); });
+            db.ref('users/' + userData.email.replace(/\./g, ',')).set(userData).then(() => loginUser(userData));
         }
 
         function loginUser(u) {
@@ -196,9 +203,8 @@
 
         function togglePaymentModal(s) {
             if(s) {
-                const amount = selectedProduct.price;
-                document.getElementById('pay-amt').innerText = "Rs. " + amount;
-                const upi = `upi://pay?pa=9906928968@pnb&pn=SONAM TASHI&am=${amount}&cu=INR`;
+                document.getElementById('pay-amt').innerText = "Rs. " + selectedProduct.price;
+                const upi = `upi://pay?pa=9906928968@pnb&pn=SONAM TASHI&am=${selectedProduct.price}&cu=INR`;
                 document.getElementById('dynamic-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upi)}`;
             }
             document.getElementById('payment-modal').classList.toggle('hidden', !s);
@@ -207,12 +213,15 @@
         function confirmOrder() {
             const utr = document.getElementById('pay-utr').value.trim();
             const file = document.getElementById('pay-img').files[0];
-            if(!file || !utr) return alert("Screenshot and ID required!");
+            if(!file || !utr) return alert("Screenshot and Ref ID required!");
             const btn = document.getElementById('confirm-btn'); btn.innerText = "SENDING..."; btn.disabled = true;
             const reader = new FileReader();
             reader.onload = (e) => {
                 const data = { item: selectedProduct.name, price: selectedProduct.price, userName: currentUser.name, userEmail: currentUser.email, userPhone: currentUser.phone, utr: utr.toUpperCase(), proofImg: e.target.result, status: 'Pending', time: new Date().toLocaleString() };
-                db.ref('orders').push(data).then(() => { alert("Order Submitted!"); togglePaymentModal(false); showPage('history'); btn.innerText = "Confirm Payment"; btn.disabled = false; });
+                db.ref('orders').push(data).then(() => {
+                    alert("Order Placed!"); togglePaymentModal(false); showPage('history');
+                    btn.innerText = "Confirm Payment"; btn.disabled = false;
+                });
             };
             reader.readAsDataURL(file);
         }
