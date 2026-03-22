@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sodari Online Shop - Verified</title>
+    <title>Sodari Online Shop - Official</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #38bdf8; --bg-gradient: radial-gradient(circle at top right, #0f172a, #020617); }
@@ -17,68 +16,75 @@
         .nav-active { color: var(--primary); transform: translateY(-3px); }
         .hidden { display: none !important; }
         .product-card { transition: transform 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+        input { color: white !important; }
     </style>
 </head>
 <body>
 
+    <!-- Splash Screen -->
     <div id="splash" class="fixed inset-0 bg-[#020617] flex flex-col items-center justify-center z-[10000]">
         <div class="w-16 h-16 bg-sky-500 rounded-2xl rotate-45 flex items-center justify-center animate-bounce text-white font-black text-2xl">S</div>
-        <p class="mt-8 text-sky-400 font-bold tracking-widest animate-pulse uppercase">Sodari Online</p>
+        <p class="mt-8 text-sky-400 font-bold tracking-widest animate-pulse uppercase">Sodari Shop</p>
     </div>
 
-    <!-- AUTH SECTION: Fixed for APK -->
+    <!-- 1. Real Registration Section (Instead of Google) -->
     <div id="auth-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
         <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl border border-white/5">
-            <h2 class="text-3xl font-extrabold mb-2 tracking-tight uppercase">WELCOME</h2>
-            <p class="text-slate-400 text-sm mb-8 font-medium">Verify your Google account to start</p>
+            <h2 class="text-3xl font-extrabold mb-2 tracking-tight uppercase">Welcome</h2>
+            <p class="text-slate-400 text-sm mb-8 font-medium">Register with your real details to start shopping</p>
             
-            <button onclick="signInWithGoogle()" class="w-full bg-white text-black p-4 rounded-2xl font-bold flex items-center justify-center gap-3 active:scale-95 transition mb-6 shadow-xl">
-                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-6 h-6">
-                Continue with Google
-            </button>
-
-            <!-- APK BACKUP LOGIN: यो बटनले पक्का लगइन गराउँछ -->
-            <div class="p-4 bg-sky-500/10 rounded-2xl border border-sky-500/20">
-                <p class="text-[10px] text-slate-400 mb-2">Login blocked in app?</p>
-                <a href="https://djxplore.github.io/sodari-shop/" target="_system" class="block w-full text-sky-400 font-bold text-xs uppercase underline">
-                    Open in Chrome to Login
-                </a>
-            </div>
-
-            <p class="text-[9px] text-slate-500 mt-6 uppercase tracking-widest font-bold">Only Real Gmail Accepted</p>
-        </div>
-    </div>
-
-    <div id="reg-details-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
-        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl border border-sky-500/20">
-            <h2 class="text-2xl font-extrabold mb-1 uppercase">Profile Setup</h2>
-            <p id="reg-email-display" class="text-sky-400 text-[10px] font-bold mb-8"></p>
             <div class="space-y-4 text-left">
-                <input type="text" id="reg-name" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="Full Name">
-                <input type="number" id="reg-phone" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="Real Phone (10 Digit)">
-                <input type="text" id="reg-address" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="Delivery Address">
-                <button onclick="completeRegistration()" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg mt-4 uppercase">Finish Setup</button>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Full Name</label>
+                    <input type="text" id="reg-name" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:border-sky-500" placeholder="Enter real name">
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Real Phone Number (10 Digits)</label>
+                    <input type="number" id="reg-phone" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:border-sky-500" placeholder="98XXXXXXXX">
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Delivery Address</label>
+                    <input type="text" id="reg-address" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:border-sky-500" placeholder="City, Area, Ward No.">
+                </div>
+                
+                <button onclick="handleManualRegistration()" id="reg-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition mt-4 uppercase tracking-widest">Create Account</button>
             </div>
+            <p class="text-[9px] text-slate-500 mt-6 uppercase tracking-widest font-bold">Verified Digital Shop</p>
         </div>
     </div>
 
+    <!-- 2. Main App Content -->
     <div id="main-app" class="hidden">
         <header class="p-5 flex justify-between items-center glass sticky top-0 z-50">
-            <div><p class="text-[10px] text-sky-400 font-black uppercase">Namaste,</p><h1 id="header-user-name" class="font-extrabold text-lg truncate max-w-[150px]">Guest</h1></div>
+            <div>
+                <p class="text-[10px] text-sky-400 font-black uppercase">Official Shop,</p>
+                <h1 id="header-user-name" class="font-extrabold text-lg truncate max-w-[150px]">Guest</h1>
+            </div>
             <div onclick="showPage('profile')" class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center font-black" id="nav-initial">S</div>
         </header>
-        <div id="page-shop" class="page-content p-4 pb-32"><div id="product-list" class="grid grid-cols-2 gap-4"></div></div>
-        <div id="page-history" class="page-content p-4 hidden pb-32"><h2 class="text-2xl font-extrabold mb-6">Order Tracking</h2><div id="order-history" class="space-y-4"></div></div>
+
+        <div id="page-shop" class="page-content p-4 pb-32">
+            <div class="mb-6 p-6 bg-gradient-to-br from-blue-600 to-sky-500 rounded-[2rem] shadow-xl">
+                <h2 class="text-2xl font-black leading-tight uppercase tracking-widest">Sodari Digital <br>Market</h2>
+            </div>
+            <div id="product-list" class="grid grid-cols-2 gap-4"></div>
+        </div>
+
+        <div id="page-history" class="page-content p-4 hidden pb-32 text-center">
+            <h2 class="text-2xl font-extrabold mb-6 uppercase tracking-tighter">My Orders</h2>
+            <div id="order-history" class="space-y-4"></div>
+        </div>
+
         <div id="page-profile" class="page-content p-6 hidden pb-32 text-center">
              <div class="glass p-8 rounded-[2.5rem] mb-6 border-white/5">
                 <div class="w-20 h-20 bg-sky-500 rounded-3xl mx-auto mb-4 flex items-center justify-center text-3xl font-black shadow-xl" id="prof-initial">S</div>
-                <h3 id="prof-name" class="text-xl font-bold uppercase tracking-tight">...</h3>
-                <p id="prof-email" class="text-sky-400 text-[10px] font-bold mb-2"></p>
-                <p id="prof-phone" class="text-slate-400 text-xs font-bold"></p>
+                <h3 id="prof-name" class="text-xl font-bold uppercase tracking-tight">User</h3>
+                <p id="prof-phone" class="text-sky-400 text-sm font-bold mb-1"></p>
                 <p id="prof-address" class="text-slate-500 text-[10px] mt-1 uppercase"></p>
             </div>
             <button onclick="logout()" class="w-full bg-red-500/10 text-red-500 p-5 rounded-2xl font-black border border-red-500/20 uppercase tracking-widest">Logout Account</button>
         </div>
+
         <nav class="fixed bottom-0 w-full glass flex justify-around p-4 rounded-t-[2.5rem] z-[1000] border-t border-white/10">
             <button onclick="showPage('shop')" id="btn-shop" class="nav-btn nav-active">🏠<span>Home</span></button>
             <button onclick="showPage('history')" id="btn-history" class="nav-btn">📦<span>Orders</span></button>
@@ -86,99 +92,86 @@
         </nav>
     </div>
 
+    <!-- QR Payment Modal -->
     <div id="payment-modal" class="fixed inset-0 hidden flex items-center justify-center p-4 bg-black/95 z-[9999]">
         <div class="glass dialog-content w-full max-w-sm p-6 rounded-[2.5rem] shadow-2xl border border-sky-500/30 overflow-y-auto max-h-[90vh]">
-            <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-black text-sky-400 uppercase">Secure Payment</h3><button onclick="togglePaymentModal(false)" class="text-slate-400">✕</button></div>
-            <div class="bg-blue-600/10 p-4 rounded-2xl text-center mb-4 text-white"><h2 id="pay-amt" class="text-3xl font-black">Rs. 0</h2></div>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-black text-sky-400 uppercase">Secure Pay</h3>
+                <button onclick="togglePaymentModal(false)" class="text-slate-400">✕</button>
+            </div>
+            <div class="bg-blue-600/10 p-4 rounded-2xl text-center mb-4 border border-blue-500/20 text-white">
+                <h2 id="pay-amt" class="text-3xl font-black">Rs. 0</h2>
+            </div>
             <div class="bg-white p-4 rounded-2xl mb-4 flex flex-col items-center">
                 <img id="dynamic-qr" src="" class="w-60 h-60 rounded-lg">
-                <p class="text-[14px] text-slate-900 font-bold mt-2 uppercase">SONAM TASHI</p>
+                <div class="text-center mt-3">
+                   <p class="text-[14px] text-slate-900 font-black uppercase">SONAM TASHI</p>
+                   <p class="text-[10px] text-blue-600 font-bold uppercase">9906928968@pnb</p>
+                </div>
             </div>
             <div class="space-y-4 mb-4">
                 <input type="file" id="pay-img" accept="image/*" class="w-full text-xs text-slate-400">
                 <input type="text" id="pay-utr" placeholder="Transaction ID (UTR)" class="w-full p-4 bg-slate-950 border border-slate-700 rounded-xl text-center uppercase font-mono text-white outline-none">
             </div>
-            <button onclick="confirmOrder()" id="confirm-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition">Confirm Payment</button>
+            <button onclick="confirmOrder()" id="confirm-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition">Confirm Order</button>
         </div>
     </div>
 
     <script>
+        // --- 1. FIREBASE CONFIG ---
         const firebaseConfig = { 
             apiKey: "AIzaSyCPfeQuHLUciwDha9g2y3_Wc4eLvjjkxW4", 
-            databaseURL: "https://sodari-online-default-rtdb.firebaseio.com",
-            authDomain: "sodari-online.firebaseapp.com" 
+            databaseURL: "https://sodari-online-default-rtdb.firebaseio.com"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const auth = firebase.auth();
-        const provider = new firebase.auth.GoogleAuthProvider();
 
         let currentUser = JSON.parse(localStorage.getItem('sodari_active_user'));
-        let tempUser = null;
         let selectedProduct = null;
 
-        function signInWithGoogle() {
-            auth.signInWithRedirect(provider).catch((err) => alert("Error: " + err.message));
-        }
-
-        auth.getRedirectResult().then((result) => {
-            if (result && result.user) {
-                const user = result.user;
-                tempUser = { name: user.displayName, email: user.email };
-                checkUserInDB(user.email);
-            }
-        });
-
-        function checkUserInDB(email) {
-            const key = email.replace(/\./g, ',');
-            db.ref('users/' + key).once('value', (snap) => {
-                if (snap.exists()) loginUser(snap.val());
-                else showRegistration();
-            });
-        }
-
-        function showRegistration() {
-            document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('reg-details-section').classList.remove('hidden');
-            document.getElementById('reg-email-display').innerText = "Verified: " + tempUser.email;
-            document.getElementById('reg-name').value = tempUser.name;
-        }
-
-        function completeRegistration() {
+        // --- 2. MANUAL REAL REGISTRATION (Saves Data based on Phone) ---
+        function handleManualRegistration() {
             const name = document.getElementById('reg-name').value.trim();
             const phone = document.getElementById('reg-phone').value.trim();
             const address = document.getElementById('reg-address').value.trim();
+
+            // REAL INFO VALIDATION (10 Digits starting with 6-9)
             const phonePattern = /^[6-9]\d{9}$/; 
 
-            if (name.length < 3) return alert("Enter full name.");
-            if (!phonePattern.test(phone)) return alert("Enter real 10-digit phone!");
-            if (address.length < 5) return alert("Enter address.");
+            if (name.length < 3) return alert("Please enter your real full name.");
+            if (!phonePattern.test(phone)) return alert("Error: Enter a real 10-digit mobile number!");
+            if (address.length < 5) return alert("Error: Enter a proper delivery address.");
 
-            const userData = { ...tempUser, name, phone, address, verified: true };
-            db.ref('users/' + userData.email.replace(/\./g, ',')).set(userData).then(() => loginUser(userData));
+            const userData = { name, phone, address, verified: true };
+            
+            // Use phone number as the unique key
+            db.ref('users/' + phone).set(userData).then(() => {
+                alert("Account Created Successfully!");
+                loginUser(userData);
+            });
         }
 
         function loginUser(u) {
             localStorage.setItem('sodari_active_user', JSON.stringify(u));
             currentUser = u;
             document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('reg-details-section').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
             initUI();
+            showPage('shop');
         }
 
-        function logout() { localStorage.clear(); auth.signOut(); location.reload(); }
+        function logout() { localStorage.clear(); location.reload(); }
 
+        // --- 3. APP LOGIC ---
         function initUI() {
             document.getElementById('header-user-name').innerText = currentUser.name;
             document.getElementById('prof-name').innerText = currentUser.name;
-            document.getElementById('prof-email').innerText = currentUser.email;
             document.getElementById('prof-phone').innerText = "📞 " + currentUser.phone;
             document.getElementById('prof-address').innerText = "📍 " + currentUser.address;
             const init = currentUser.name[0].toUpperCase();
             document.getElementById('nav-initial').innerText = init;
             document.getElementById('prof-initial').innerText = init;
-            loadProducts(); showPage('shop');
+            loadProducts();
         }
 
         function loadProducts() {
@@ -188,7 +181,7 @@
                     const p = child.val();
                     const card = document.createElement('div');
                     card.className = "glass p-3 rounded-[2.5rem] product-card";
-                    card.innerHTML = `<img src="${p.img || p.images?.[0]}" class="w-full h-32 object-cover rounded-[1.5rem] mb-2"><h3 class="font-bold text-[10px] truncate px-1">${p.name}</h3><div class="flex justify-between items-center mt-2 px-1"><p class="text-sky-400 font-black text-[11px]">Rs. ${p.price}</p><span class="text-[8px] bg-sky-500/20 text-sky-400 font-bold px-1.5 py-0.5 rounded uppercase">Order</span></div>`;
+                    card.innerHTML = `<img src="${p.img || p.images?.[0]}" class="w-full h-32 object-cover rounded-[1.5rem] mb-2"><h3 class="font-bold text-[10px] truncate uppercase px-1">${p.name}</h3><div class="flex justify-between items-center mt-2 px-1"><p class="text-sky-400 font-black text-[11px]">Rs. ${p.price}</p><span class="text-[8px] bg-sky-500/20 text-sky-400 font-bold px-1.5 py-0.5 rounded">Order</span></div>`;
                     card.onclick = () => { selectedProduct = p; togglePaymentModal(true); };
                     list.appendChild(card);
                 });
@@ -197,9 +190,8 @@
 
         function togglePaymentModal(s) {
             if(s) {
-                const amount = selectedProduct.price;
-                document.getElementById('pay-amt').innerText = "Rs. " + amount;
-                const upi = `upi://pay?pa=9906928968@pnb&pn=SONAM TASHI&am=${amount}&cu=INR`;
+                document.getElementById('pay-amt').innerText = "Rs. " + selectedProduct.price;
+                const upi = `upi://pay?pa=9906928968@pnb&pn=SONAM TASHI&am=${selectedProduct.price}&cu=INR`;
                 document.getElementById('dynamic-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upi)}`;
             }
             document.getElementById('payment-modal').classList.toggle('hidden', !s);
@@ -208,14 +200,20 @@
         function confirmOrder() {
             const utr = document.getElementById('pay-utr').value.trim();
             const file = document.getElementById('pay-img').files[0];
-            if(!file || !utr) return alert("Screenshot and ID required!");
-            const btn = document.getElementById('confirm-btn'); btn.innerText = "SENDING..."; btn.disabled = true;
+            if(!file || !utr) return alert("Screenshot and Transaction ID required!");
+
+            const btn = document.getElementById('confirm-btn'); btn.innerText = "Processing..."; btn.disabled = true;
             const reader = new FileReader();
             reader.onload = (e) => {
-                const data = { item: selectedProduct.name, price: selectedProduct.price, userName: currentUser.name, userEmail: currentUser.email, userPhone: currentUser.phone, utr: utr.toUpperCase(), proofImg: e.target.result, status: 'Pending', time: new Date().toLocaleString() };
+                const data = { 
+                    item: selectedProduct.name, price: selectedProduct.price, 
+                    userName: currentUser.name, userPhone: currentUser.phone, userAddress: currentUser.address,
+                    utr: utr.toUpperCase(), proofImg: e.target.result, 
+                    status: 'Pending', time: new Date().toLocaleString() 
+                };
                 db.ref('orders').push(data).then(() => {
                     alert("Order Submitted!"); togglePaymentModal(false); showPage('history');
-                    btn.innerText = "Confirm Payment"; btn.disabled = false;
+                    btn.innerText = "Confirm Order"; btn.disabled = false;
                 });
             };
             reader.readAsDataURL(file);
@@ -234,8 +232,8 @@
                 const hist = document.getElementById('order-history'); hist.innerHTML = "";
                 snap.forEach(child => {
                     const o = child.val();
-                    if(o.userEmail === currentUser.email) {
-                        hist.innerHTML = `<div class="glass p-5 rounded-3xl mb-4 text-left border-white/5 shadow-lg"><div class="flex justify-between mb-2 text-[10px] font-bold uppercase"><h4>${o.item}</h4><span class="text-sky-400">${o.status}</span></div><p class="text-sky-400 font-black text-lg">Rs. ${o.price}</p><p class="text-[9px] text-slate-500 mt-2">${o.time}</p></div>` + hist.innerHTML;
+                    if(o.userPhone === currentUser.phone) {
+                        hist.innerHTML = `<div class="glass p-5 rounded-3xl mb-4 text-left shadow-lg"><div class="flex justify-between mb-2 text-[10px] font-bold uppercase"><h4>${o.item}</h4><span class="text-sky-400">${o.status}</span></div><p class="text-sky-400 font-black text-lg">Rs. ${o.price}</p><p class="text-[9px] text-slate-500 mt-2">${o.time}</p></div>` + hist.innerHTML;
                     }
                 });
             });
@@ -246,7 +244,7 @@
                 document.getElementById('splash').classList.add('hidden');
                 if(currentUser) loginUser(currentUser);
                 else document.getElementById('auth-section').classList.remove('hidden');
-            }, 1500);
+            }, 1200);
         };
     </script>
 </body>
