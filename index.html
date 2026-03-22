@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sodari Online - Verified Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #38bdf8; --bg-gradient: radial-gradient(circle at top right, #0f172a, #020617); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-gradient); color: white; overflow-x: hidden; min-height: 100vh; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
+        .hidden { display: none !important; }
+        .nav-btn { color: #94a3b8; transition: 0.3s; display: flex; flex-direction: column; align-items: center; font-size: 11px; font-weight: 700; }
+        .nav-active { color: var(--primary); transform: translateY(-3px); }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splash" class="fixed inset-0 bg-[#020617] flex flex-col items-center justify-center z-[10000]">
+        <div class="w-16 h-16 bg-sky-500 rounded-2xl rotate-45 flex items-center justify-center animate-bounce text-white font-black text-2xl">S</div>
+        <p class="mt-8 text-sky-400 font-bold tracking-widest animate-pulse uppercase">Sodari Online</p>
+    </div>
+
+    <!-- Auth Section: Verified Google Account Only -->
+    <div id="auth-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
+        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl border border-white/5">
+            <h2 class="text-3xl font-extrabold mb-2 tracking-tight uppercase">Welcome</h2>
+            <p class="text-slate-400 text-sm mb-8 font-medium">Use your real Google account to continue</p>
+            
+            <button onclick="signInWithGoogle()" class="w-full bg-white text-black p-4 rounded-2xl font-bold flex items-center justify-center gap-3 active:scale-95 transition mb-4 shadow-xl">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-6 h-6">
+                Verify with Google
+            </button>
+            <p class="text-[9px] text-slate-500 uppercase tracking-widest">Only Verified Gmail Accepted</p>
+        </div>
+    </div>
+
+    <!-- Real Info Form (After Google Login) -->
+    <div id="reg-details-section" class="min-h-screen flex flex-col items-center justify-center p-6 hidden text-center">
+        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] border border-sky-500/20 shadow-2xl">
+            <h2 class="text-2xl font-extrabold mb-1">REAL DETAILS</h2>
+            <p id="reg-email-display" class="text-sky-400 text-[10px] font-bold mb-8"></p>
+            
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Full Name</label>
+                    <input type="text" id="reg-name" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="Real Name">
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Real Phone (10 Digits)</label>
+                    <input type="number" id="reg-phone" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="98XXXXXXXX">
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-400 ml-2 uppercase">Delivery Address</label>
+                    <input type="text" id="reg-address" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-white focus:border-sky-500" placeholder="City, Area, Ward">
+                </div>
+                
+                <button onclick="completeRegistration()" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition mt-4 uppercase tracking-widest">Create Verified Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Content -->
+    <div id="main-app" class="hidden">
+        <header class="p-5 flex justify-between items-center glass sticky top-0 z-50">
+            <div>
+                <p class="text-[10px] text-sky-400 font-black uppercase">Namaste,</p>
+                <h1 id="header-user-name" class="font-extrabold text-lg truncate max-w-[150px]">Guest</h1>
+            </div>
+            <div onclick="showPage('profile')" class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center font-black" id="nav-initial">S</div>
+        </header>
+
+        <div id="page-shop" class="page-content p-4 pb-32">
+            <div id="product-list" class="grid grid-cols-2 gap-4"></div>
+        </div>
+
+        <div id="page-history" class="page-content p-4 hidden pb-32">
+            <h2 class="text-2xl font-extrabold mb-6">Orders History</h2>
+            <div id="order-history" class="space-y-4"></div>
+        </div>
+
+        <div id="page-profile" class="page-content p-6 hidden pb-32 text-center">
+             <div class="glass p-8 rounded-[2.5rem] mb-6 border-white/5">
+                <div class="w-20 h-20 bg-sky-500 rounded-3xl mx-auto mb-4 flex items-center justify-center text-3xl font-black shadow-xl" id="prof-initial">S</div>
+                <h3 id="prof-name" class="text-xl font-bold uppercase tracking-tight">...</h3>
+                <p id="prof-email" class="text-sky-400 text-[10px] font-bold mb-2"></p>
+                <p id="prof-phone" class="text-slate-400 text-xs font-bold"></p>
+                <p id="prof-address" class="text-slate-500 text-[10px] mt-1 uppercase"></p>
+            </div>
+            <button onclick="logout()" class="w-full bg-red-500/10 text-red-500 p-5 rounded-2xl font-black border border-red-500/20 uppercase tracking-widest">Logout</button>
+        </div>
+
+        <nav class="fixed bottom-0 w-full glass flex justify-around p-4 rounded-t-[2.5rem] z-[1000] border-t border-white/10">
+            <button onclick="showPage('shop')" id="btn-shop" class="nav-btn nav-active">🏠<span>Home</span></button>
+            <button onclick="showPage('history')" id="btn-history" class="nav-btn">📦<span>Orders</span></button>
+            <button onclick="showPage('profile')" id="btn-profile" class="nav-btn">👤<span>Profile</span></button>
+        </nav>
+    </div>
+
+    <!-- QR Payment Modal -->
+    <div id="payment-modal" class="fixed inset-0 hidden flex items-center justify-center p-4 bg-black/95 z-[9999]">
+        <div class="glass dialog-content w-full max-w-sm p-6 rounded-[2.5rem] shadow-2xl border border-sky-500/30">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-black text-sky-400 uppercase">Secure Pay</h3>
+                <button onclick="togglePaymentModal(false)" class="text-slate-400">✕</button>
+            </div>
+            <div class="bg-blue-600/10 p-4 rounded-2xl text-center mb-4 border border-blue-500/20 text-white">
+                <p class="text-[10px] text-sky-400 font-bold uppercase mb-1">Payable Amount</p>
+                <h2 id="pay-amt" class="text-3xl font-black">Rs. 0</h2>
+            </div>
+            <div class="bg-white p-4 rounded-2xl mb-4 flex flex-col items-center">
+                <img id="dynamic-qr" src="" class="w-60 h-60 rounded-lg">
+                <p class="text-[12px] text-slate-900 font-bold mt-2 uppercase">SONAM TASHI</p>
+            </div>
+            <div class="space-y-3 mb-4">
+                <input type="file" id="pay-img" accept="image/*" class="w-full text-xs text-slate-400 file:bg-sky-500 file:text-white file:border-0 file:p-2 file:rounded-lg">
+                <input type="text" id="pay-utr" placeholder="Transaction ID (UTR)" class="w-full p-4 bg-slate-950 border border-slate-700 rounded-xl outline-none text-center uppercase font-mono">
+            </div>
+            <button onclick="confirmOrder()" id="confirm-btn" class="w-full bg-sky-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition">Confirm Payment</button>
+        </div>
+    </div>
+
+    <script>
+        // --- FIREBASE CONFIG ---
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCPfeQuHLUciwDha9g2y3_Wc4eLvjjkxW4", 
+            databaseURL: "https://sodari-online-default-rtdb.firebaseio.com",
+            authDomain: "sodari-online.firebaseapp.com" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        let currentUser = JSON.parse(localStorage.getItem('sodari_active_user'));
+        let tempUser = null;
+        let selectedProduct = null;
+
+        // --- AUTH & VALIDATION ---
+        function signInWithGoogle() {
+            auth.signInWithPopup(provider).then((result) => {
+                const user = result.user;
+                tempUser = { name: user.displayName, email: user.email };
+                checkUserInDB(user.email);
+            }).catch((err) => {
+                alert("Google verification failed. Make sure you added your domain in Firebase!");
+            });
+        }
+
+        function checkUserInDB(email) {
+            const key = email.replace(/\./g, ',');
+            db.ref('users/' + key).once('value', (snap) => {
+                if (snap.exists()) loginUser(snap.val());
+                else showRegistration();
+            });
+        }
+
+        function showRegistration() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('reg-details-section').classList.remove('hidden');
+            document.getElementById('reg-email-display').innerText = "Verified Gmail: " + tempUser.email;
+            document.getElementById('reg-name').value = tempUser.name;
+        }
+
+        function completeRegistration() {
+            const name = document.getElementById('reg-name').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const address = document.getElementById('reg-address').value.trim();
+
+            // REAL DATA CHECK: Number must be 10 digits starting with 9, 8, 7, 6
+            const phonePattern = /^[6-9]\d{9}$/; 
+
+            if (name.length < 3) return alert("Please enter your real full name.");
+            if (!phonePattern.test(phone)) return alert("Error: Please enter a real 10-digit mobile number!");
+            if (address.length < 5) return alert("Please enter a proper delivery address.");
+
+            const userData = { ...tempUser, name, phone, address, verified: true };
+            const key = userData.email.replace(/\./g, ',');
+            
+            db.ref('users/' + key).set(userData).then(() => {
+                alert("Verified Account Created!");
+                loginUser(userData);
+            });
+        }
+
+        function loginUser(u) {
+            localStorage.setItem('sodari_active_user', JSON.stringify(u));
+            currentUser = u;
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('reg-details-section').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            initUI(); showPage('shop');
+        }
+
+        function logout() { localStorage.clear(); auth.signOut(); location.reload(); }
+
+        // --- APP LOGIC ---
+        function initUI() {
+            document.getElementById('header-user-name').innerText = currentUser.name;
+            document.getElementById('prof-name').innerText = currentUser.name;
+            document.getElementById('prof-email').innerText = currentUser.email;
+            document.getElementById('prof-phone').innerText = "📞 " + currentUser.phone;
+            document.getElementById('prof-address').innerText = "📍 " + currentUser.address;
+            const initial = currentUser.name[0].toUpperCase();
+            document.getElementById('nav-initial').innerText = initial;
+            document.getElementById('prof-initial').innerText = initial;
+            loadProducts();
+        }
+
+        function loadProducts() {
+            db.ref('products').on('value', snap => {
+                const list = document.getElementById('product-list'); list.innerHTML = "";
+                snap.forEach(child => {
+                    const p = child.val();
+                    const card = document.createElement('div');
+                    card.className = "glass p-3 rounded-[2.5rem] product-card";
+                    const img = (p.images && p.images.length > 0) ? p.images[0] : (p.img || "");
+                    card.innerHTML = `<img src="${img}" class="w-full h-32 object-cover rounded-[1.5rem] mb-2"><h3 class="font-bold text-[10px] truncate uppercase px-1">${p.name}</h3><div class="flex justify-between items-center px-1 mt-2"><p class="text-sky-400 font-black text-[11px]">Rs. ${p.price}</p><span class="text-[8px] bg-sky-500/20 text-sky-400 font-bold px-1.5 py-0.5 rounded uppercase">Order</span></div>`;
+                    card.onclick = () => { selectedProduct = p; togglePaymentModal(true); };
+                    list.appendChild(card);
+                });
+            });
+        }
+
+        function togglePaymentModal(s) {
+            if(s) {
+                document.getElementById('pay-amt').innerText = "Rs. " + selectedProduct.price;
+                const upi = `upi://pay?pa=9906928968@pnb&pn=SONAM TASHI&am=${selectedProduct.price}&cu=INR`;
+                document.getElementById('dynamic-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upi)}`;
+                document.getElementById('pay-utr').value = "";
+            }
+            document.getElementById('payment-modal').classList.toggle('hidden', !s);
+        }
+
+        function confirmOrder() {
+            const utr = document.getElementById('pay-utr').value.trim();
+            const file = document.getElementById('pay-img').files[0];
+            if(!file || !utr) return alert("Upload screenshot and enter Ref ID!");
+
+            const btn = document.getElementById('confirm-btn'); btn.innerText = "SENDING..."; btn.disabled = true;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = { 
+                    item: selectedProduct.name, price: selectedProduct.price, 
+                    userName: currentUser.name, userEmail: currentUser.email, userPhone: currentUser.phone,
+                    utr: utr.toUpperCase(), proofImg: e.target.result, 
+                    status: 'Pending', time: new Date().toLocaleString() 
+                };
+                db.ref('orders').push(data).then(() => {
+                    alert("Verified Order Placed!"); togglePaymentModal(false); showPage('history');
+                    btn.innerText = "Confirm Payment"; btn.disabled = false;
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showPage(pId) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+            document.getElementById('page-' + pId).classList.remove('hidden');
+            document.getElementById('btn-' + pId).classList.add('nav-active');
+            if(pId === 'history') loadOrders();
+        }
+
+        function loadOrders() {
+            db.ref('orders').on('value', snap => {
+                const hist = document.getElementById('order-history'); hist.innerHTML = "";
+                snap.forEach(child => {
+                    const o = child.val();
+                    if(o.userEmail === currentUser.email) {
+                        hist.innerHTML = `<div class="glass p-5 rounded-3xl mb-4 text-left shadow-lg border-white/5"><div class="flex justify-between mb-2 text-[10px] font-bold uppercase"><h4>${o.item}</h4><span class="text-sky-400">${o.status}</span></div><p class="text-sky-400 font-black text-lg">Rs. ${o.price}</p><p class="text-[9px] text-slate-500 mt-2">${o.time}</p></div>` + hist.innerHTML;
+                    }
+                });
+            });
+        }
+
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('splash').classList.add('hidden');
+                if(currentUser) loginUser(currentUser);
+                else document.getElementById('auth-section').classList.remove('hidden');
+            }, 1500);
+        };
+    </script>
+</body>
+</html>
