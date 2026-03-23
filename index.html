@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="monetag" content="a773fd896c15b9d5185218ec6e8f667d">
+    <meta name="monetag" content="91262f746142c1605380538746c05d70">
     
     <script src="https://alwingulla.com/88/p.js" data-p="2896504" defer></script>
 
@@ -256,10 +256,16 @@
                             </div>
                         </div>`;
                     card.onclick = () => { 
-                        // Show Monetag Ad when 'Buy' is clicked
-                        if (typeof show_8803487 === 'function') { show_8803487(); }
-                        selectedProduct = { ...p, id: child.key }; 
-                        togglePaymentModal(true); 
+                        // Show Monetag Interstitial Ad when product is clicked
+                        if (typeof show_8803487 === 'function') { 
+                            show_8803487().then(() => {
+                                selectedProduct = { ...p, id: child.key }; 
+                                togglePaymentModal(true); 
+                            });
+                        } else {
+                            selectedProduct = { ...p, id: child.key }; 
+                            togglePaymentModal(true); 
+                        }
                     };
                     list.appendChild(card);
                 });
