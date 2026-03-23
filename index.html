@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="monetag" content="a773fd896c15b9d5185218ec6e8f667d">
+    
+    <script src="https://alwingulla.com/88/p.js" data-p="2896504" defer></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sodari Shop - Verified Only</title>
@@ -29,7 +33,6 @@
         <p class="mt-8 text-sky-400 font-bold tracking-widest animate-pulse uppercase">Verified Sodari Shop</p>
     </div>
 
-    <!-- LOGIN/REGISTER (IDs match your EmailJS account) -->
     <div id="auth-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
         <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl">
             <h2 id="auth-title" class="text-3xl font-extrabold mb-1 uppercase tracking-tighter text-white">Welcome</h2>
@@ -54,7 +57,6 @@
         </div>
     </div>
 
-    <!-- OTP SCREEN -->
     <div id="otp-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
         <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] border border-sky-500/30 shadow-2xl">
             <h2 class="text-2xl font-black mb-2 uppercase">Verify OTP</h2>
@@ -67,7 +69,6 @@
         </div>
     </div>
 
-    <!-- MAIN APP CONTENT -->
     <div id="main-app" class="hidden">
         <header class="p-5 flex justify-between items-center glass sticky top-0 z-50">
             <div><p class="text-[10px] text-sky-400 font-black uppercase tracking-widest">Namaste,</p><h1 id="header-user-name" class="font-extrabold text-lg truncate max-w-[150px]">Guest</h1></div>
@@ -79,7 +80,6 @@
                 <h2 class="text-2xl font-black uppercase tracking-widest">Official Sodari Shop</h2>
             </div>
 
-            <!-- CATEGORY BAR -->
             <div class="flex gap-2 overflow-x-auto pb-4 mb-4" style="scrollbar-width: none;">
                 <button onclick="filterCat('All')" class="cat-btn cat-active px-5 py-2.5 bg-slate-900 rounded-full text-[10px] uppercase font-bold text-white" id="cat-All">All Items</button>
                 <button onclick="filterCat('Rooting')" class="cat-btn px-5 py-2.5 bg-slate-900 rounded-full text-[10px] uppercase font-bold text-white" id="cat-Rooting">Rooting</button>
@@ -111,7 +111,6 @@
         </nav>
     </div>
 
-    <!-- PAYMENT MODAL -->
     <div id="payment-modal" class="fixed inset-0 hidden flex items-center justify-center p-4 bg-black/95 z-[9999]">
         <div class="glass dialog-content w-full max-w-sm p-6 rounded-[2.5rem] shadow-2xl border border-sky-500/30 overflow-y-auto max-h-[90vh]">
             <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-black text-sky-400 uppercase">Secure Pay</h3><button onclick="togglePaymentModal(false)" class="text-slate-400">✕</button></div>
@@ -129,7 +128,6 @@
     </div>
 
     <script>
-        // --- 1. CONFIGS ---
         const SERVICE_ID = "service_ayu880i";
         const TEMPLATE_ID = "template_9y1rbhq";
         const PUBLIC_KEY = "iPOwwrMm5Sf2UrudJ";
@@ -149,7 +147,7 @@
         let currentUser = JSON.parse(localStorage.getItem('sodari_active_user'));
         let selectedProduct = null;
 
-        // --- 2. AUTH LOGIC ---
+        // AUTH LOGIC
         function toggleAuthMode(mode) {
             currentAuthMode = mode;
             const regFields = document.getElementById('register-fields');
@@ -220,7 +218,7 @@
 
         function logout() { localStorage.clear(); location.reload(); }
 
-        // --- 3. SHOP LOGIC ---
+        // SHOP LOGIC
         function filterCat(cat) {
             currentCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('cat-active'));
@@ -257,7 +255,12 @@
                                 <button class="bg-sky-500 text-white text-[10px] font-black px-4 py-2 rounded-xl uppercase shadow-lg">Buy</button>
                             </div>
                         </div>`;
-                    card.onclick = () => { selectedProduct = { ...p, id: child.key }; togglePaymentModal(true); };
+                    card.onclick = () => { 
+                        // Show Monetag Ad when 'Buy' is clicked
+                        if (typeof show_8803487 === 'function') { show_8803487(); }
+                        selectedProduct = { ...p, id: child.key }; 
+                        togglePaymentModal(true); 
+                    };
                     list.appendChild(card);
                 });
             });
@@ -286,7 +289,7 @@
                     userName: currentUser.name, userEmail: currentUser.email, userPhone: currentUser.phone, userAddress: currentUser.address,
                     utr: utr.toUpperCase(), proofImg: e.target.result, 
                     status: 'Reviewing', time: new Date().toLocaleString(),
-                    downloaded: false // NEW FIELD
+                    downloaded: false
                 };
                 db.ref('orders').push(data).then(() => {
                     alert("Order Submitted!"); togglePaymentModal(false); showPage('history');
@@ -296,12 +299,10 @@
             reader.readAsDataURL(file);
         }
 
-        // --- NEW: DOWNLOAD TRACKING LOGIC ---
         function handleDownload(orderId, link) {
             if(confirm("Confirm Download? The link will disappear after this.")) {
                 db.ref('orders/' + orderId).update({ downloaded: true }).then(() => {
                     window.open(link, '_blank');
-                    // Refresh current page to hide button
                     loadOrders();
                 });
             }
@@ -322,7 +323,6 @@
                     const o = child.val();
                     if(o.userPhone === currentUser.phone) {
                         let downloadUI = "";
-                        // Logic: If accepted AND NOT downloaded yet AND link exists
                         if(o.status === 'Accepted' && o.downloadLink && !o.downloaded) {
                             downloadUI = `<button onclick="handleDownload('${child.key}', '${o.downloadLink}')" class="block w-full bg-green-500 text-white text-center p-3 rounded-xl font-black mt-3 uppercase text-[10px] shadow-lg">📥 Download Now</button>`;
                         } else if (o.downloaded) {
