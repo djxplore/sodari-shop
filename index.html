@@ -7,10 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-    
-    <!-- EmailJS SDK -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #38bdf8; --bg-gradient: radial-gradient(circle at top right, #0f172a, #020617); }
@@ -19,16 +16,10 @@
         .nav-btn { color: #64748b; transition: 0.3s; display: flex; flex-direction: column; align-items: center; font-size: 11px; font-weight: 700; }
         .nav-active { color: var(--primary); transform: translateY(-3px); }
         .hidden { display: none !important; }
-        input { color: white !important; background: rgba(15, 23, 42, 0.6) !important; border: 1px solid rgba(51, 65, 85, 1) !important; outline: none; transition: 0.3s; }
-        input:focus { border-color: #38bdf8 !important; box-shadow: 0 0 10px rgba(56, 189, 248, 0.2); }
-        .product-card { transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.05); }
-        .product-card:active { transform: scale(0.96); }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .btn-grad { background: linear-gradient(to right, #0ea5e9, #38bdf8); }
-        
-        /* Category Bar Styling */
-        .cat-btn { white-space: nowrap; transition: 0.3s; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
-        .cat-active { background: #38bdf8 !important; color: #020617 !important; border-color: #38bdf8 !important; font-weight: 800; transform: scale(1.05); }
+        input { color: white !important; background: rgba(15, 23, 42, 0.6) !important; border: 1px solid rgba(51, 65, 85, 1) !important; outline: none; }
+        .product-card { transition: 0.3s; border: 1px solid rgba(255,255,255,0.05); }
+        .cat-btn { white-space: nowrap; transition: 0.3s; border: 1px solid rgba(255,255,255,0.1); }
+        .cat-active { background: #38bdf8 !important; color: #020617 !important; border-color: #38bdf8 !important; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -38,10 +29,10 @@
         <p class="mt-8 text-sky-400 font-bold tracking-widest animate-pulse uppercase">Verified Sodari Shop</p>
     </div>
 
-    <!-- AUTH SECTION -->
+    <!-- LOGIN/REGISTER (IDs match your EmailJS account) -->
     <div id="auth-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
         <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl">
-            <h2 id="auth-title" class="text-3xl font-extrabold mb-1 uppercase tracking-tighter">Welcome</h2>
+            <h2 id="auth-title" class="text-3xl font-extrabold mb-1 uppercase tracking-tighter text-white">Welcome</h2>
             <p id="auth-desc" class="text-slate-400 text-[10px] mb-8 font-bold uppercase tracking-widest text-sky-400">Register to enter shop</p>
             
             <div id="register-fields" class="space-y-4 text-left">
@@ -63,15 +54,15 @@
         </div>
     </div>
 
-    <!-- OTP SECTION -->
+    <!-- OTP SCREEN -->
     <div id="otp-section" class="min-h-screen flex items-center justify-center p-6 hidden text-center">
-        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] border border-sky-500/30">
+        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] border border-sky-500/30 shadow-2xl">
             <h2 class="text-2xl font-black mb-2 uppercase">Verify OTP</h2>
             <p id="otp-msg" class="text-slate-400 text-xs mb-8"></p>
             <div class="space-y-4">
                 <input type="number" id="otp-input" class="w-full p-5 rounded-xl text-center text-3xl font-bold tracking-[8px]" placeholder="000000">
                 <button onclick="verifyOTP()" id="verify-btn" class="w-full bg-green-500 p-4 rounded-xl font-black text-white shadow-lg active:scale-95 transition">ACTIVATE & ENTER</button>
-                <p onclick="location.reload()" class="text-slate-500 text-[10px] uppercase font-bold underline cursor-pointer mt-4">Cancel & Go Back</p>
+                <p onclick="location.reload()" class="text-slate-500 text-[10px] uppercase font-bold underline cursor-pointer mt-4 text-white">Cancel</p>
             </div>
         </div>
     </div>
@@ -85,22 +76,22 @@
         
         <div id="page-shop" class="page-content p-4 pb-32">
             <div class="mb-6 p-6 bg-gradient-to-br from-blue-600 to-sky-500 rounded-[2rem] shadow-xl">
-                <h2 class="text-2xl font-black uppercase tracking-widest">Sodari Digital Market</h2>
+                <h2 class="text-2xl font-black uppercase tracking-widest">Official Sodari Shop</h2>
             </div>
 
-            <!-- CATEGORY NAVIGATION BAR -->
-            <div class="flex gap-2 overflow-x-auto pb-4 mb-4" style="scrollbar-width: none; -ms-overflow-style: none;">
-                <button onclick="filterCat('All')" class="cat-btn cat-active px-5 py-2.5 bg-slate-900 rounded-full text-[10px] uppercase font-bold" id="cat-All">All Items</button>
-                <button onclick="filterCat('Rooting')" class="cat-btn px-5 py-2.5 bg-slate-900 rounded-full text-[10px] uppercase font-bold" id="cat-Rooting">Rooting</button>
-                <button onclick="filterCat('Injectors')" class="cat-btn px-5 py-2.5 bg-slate-900 rounded-full text-[10px] uppercase font-bold" id="cat-Injectors">Injectors</button>
-                <button onclick="filterCat('SourceCode')" class="cat-btn px-5 py-2.5 bg-slate-900 rounded-full text-[10px] uppercase font-bold" id="cat-SourceCode">Source Code</button>
-                <button onclick="filterCat('Unlock')" class="cat-btn px-5 py-2.5 bg-slate-900 rounded-full text-[10px] uppercase font-bold" id="cat-Unlock">Unlock</button>
+            <!-- CATEGORY BAR -->
+            <div class="flex gap-2 overflow-x-auto pb-4 mb-4" style="scrollbar-width: none;">
+                <button onclick="filterCat('All')" class="cat-btn cat-active px-5 py-2.5 bg-slate-900 rounded-full text-[10px] uppercase font-bold text-white" id="cat-All">All Items</button>
+                <button onclick="filterCat('Rooting')" class="cat-btn px-5 py-2.5 bg-slate-900 rounded-full text-[10px] uppercase font-bold text-white" id="cat-Rooting">Rooting</button>
+                <button onclick="filterCat('Injectors')" class="cat-btn px-5 py-2.5 bg-slate-900 rounded-full text-[10px] uppercase font-bold text-white" id="cat-Injectors">Injectors</button>
+                <button onclick="filterCat('SourceCode')" class="cat-btn px-5 py-2.5 bg-slate-900 rounded-full text-[10px] uppercase font-bold text-white" id="cat-SourceCode">Source Code</button>
+                <button onclick="filterCat('Unlock')" class="cat-btn px-5 py-2.5 bg-slate-900 rounded-full text-[10px] uppercase font-bold text-white" id="cat-Unlock">Unlock</button>
             </div>
 
             <div id="product-list" class="grid grid-cols-2 gap-4"></div>
         </div>
 
-        <div id="page-history" class="page-content p-4 hidden pb-32 text-center"><h2 class="text-2xl font-extrabold mb-6 uppercase">Order Tracking</h2><div id="order-history" class="space-y-4"></div></div>
+        <div id="page-history" class="page-content p-4 hidden pb-32 text-center"><h2 class="text-2xl font-extrabold mb-6 uppercase">Order Status</h2><div id="order-history" class="space-y-4"></div></div>
         
         <div id="page-profile" class="page-content p-6 hidden pb-32 text-center">
              <div class="glass p-8 rounded-[2.5rem] mb-6 border-white/5 shadow-xl">
@@ -123,8 +114,8 @@
     <!-- PAYMENT MODAL -->
     <div id="payment-modal" class="fixed inset-0 hidden flex items-center justify-center p-4 bg-black/95 z-[9999]">
         <div class="glass dialog-content w-full max-w-sm p-6 rounded-[2.5rem] shadow-2xl border border-sky-500/30 overflow-y-auto max-h-[90vh]">
-            <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-black text-sky-400 uppercase">Secure Payment</h3><button onclick="togglePaymentModal(false)" class="text-slate-400">✕</button></div>
-            <div class="bg-blue-600/10 p-4 rounded-2xl text-center mb-4 text-white"><h2 id="pay-amt" class="text-3xl font-black">Rs. 0</h2></div>
+            <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-black text-sky-400 uppercase">Secure Pay</h3><button onclick="togglePaymentModal(false)" class="text-slate-400">✕</button></div>
+            <div class="bg-blue-600/10 p-4 rounded-2xl text-center mb-4 text-white"><h2 id="pay-amt" class="text-3xl font-black text-white">Rs. 0</h2></div>
             <div class="bg-white p-4 rounded-2xl mb-4 flex flex-col items-center">
                 <img id="dynamic-qr" src="" class="w-60 h-60 rounded-lg">
                 <p class="text-[12px] text-slate-900 font-bold mt-2 uppercase">SONAM TASHI</p>
@@ -138,7 +129,7 @@
     </div>
 
     <script>
-        // --- CONFIGURATIONS ---
+        // --- 1. CONFIGS ---
         const SERVICE_ID = "service_ayu880i";
         const TEMPLATE_ID = "template_9y1rbhq";
         const PUBLIC_KEY = "iPOwwrMm5Sf2UrudJ";
@@ -154,11 +145,11 @@
         let generatedOTP = null;
         let userDataTemp = null;
         let currentAuthMode = 'register'; 
-        let currentCategory = 'All'; // DEFAULT CATEGORY
+        let currentCategory = 'All';
         let currentUser = JSON.parse(localStorage.getItem('sodari_active_user'));
         let selectedProduct = null;
 
-        // --- AUTH & TOGGLE ---
+        // --- 2. AUTH LOGIC ---
         function toggleAuthMode(mode) {
             currentAuthMode = mode;
             const regFields = document.getElementById('register-fields');
@@ -184,7 +175,7 @@
                 const phone = document.getElementById('reg-phone').value.trim();
                 const address = document.getElementById('reg-address').value.trim();
                 if (!name || !email || !phone || !address) return alert("Fill all details!");
-                if (!/^[6-9]\d{9}$/.test(phone)) return alert("Enter real 10-digit number.");
+                if (!/^[6-9]\d{9}$/.test(phone)) return alert("Invalid Phone Number");
                 db.ref('users/' + phone).once('value', snap => {
                     if (snap.exists()) { alert("Number already exists!"); toggleAuthMode('login'); }
                     else { startOTP(name, email, phone, address); }
@@ -200,7 +191,7 @@
         }
 
         function startOTP(name, email, phone, address) {
-            const btn = document.getElementById('auth-main-btn'); btn.innerText = "Connecting..."; btn.disabled = true;
+            const btn = document.getElementById('auth-main-btn'); btn.innerText = "Sending Code..."; btn.disabled = true;
             generatedOTP = Math.floor(100000 + Math.random() * 900000);
             userDataTemp = { name: name.toUpperCase(), email, phone, address: address.toUpperCase() };
             emailjs.send(SERVICE_ID, TEMPLATE_ID, { to_name: name, email: email, passcode: generatedOTP })
@@ -208,6 +199,7 @@
                     document.getElementById('auth-section').classList.add('hidden');
                     document.getElementById('otp-section').classList.remove('hidden');
                     document.getElementById('otp-msg').innerText = "OTP Code sent to " + email;
+                    btn.innerText = "Get Verification Code"; btn.disabled = false;
                 }, (err) => { alert("Email error! Check keys."); btn.disabled = false; });
         }
 
@@ -226,7 +218,9 @@
             initUI();
         }
 
-        // --- CATEGORY FILTER LOGIC ---
+        function logout() { localStorage.clear(); location.reload(); }
+
+        // --- 3. SHOP LOGIC ---
         function filterCat(cat) {
             currentCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('cat-active'));
@@ -243,7 +237,7 @@
             const init = currentUser.name[0].toUpperCase();
             document.getElementById('nav-initial').innerText = init;
             document.getElementById('prof-initial').innerText = init;
-            loadProducts();
+            loadProducts(); showPage('shop');
         }
 
         function loadProducts() {
@@ -251,23 +245,16 @@
                 const list = document.getElementById('product-list'); list.innerHTML = "";
                 snap.forEach(child => {
                     const p = child.val();
-                    // FILTERING
                     if(currentCategory !== 'All' && p.category !== currentCategory) return;
-
                     const card = document.createElement('div');
                     card.className = "glass p-2 rounded-[2rem] product-card flex flex-col h-full";
                     card.innerHTML = `
-                        <div class="w-full h-44 overflow-hidden rounded-[1.5rem] mb-3 bg-black/20">
-                            <img src="${p.img}" class="w-full h-full object-cover">
-                        </div>
+                        <div class="w-full h-44 overflow-hidden rounded-[1.5rem] mb-3 bg-black/20"><img src="${p.img}" class="w-full h-full object-cover"></div>
                         <div class="flex flex-col flex-1 px-1">
                             <h3 class="font-bold text-xs text-white leading-tight mb-2 line-clamp-2 uppercase min-h-[2.5rem]">${p.name}</h3>
                             <div class="mt-auto flex justify-between items-end pb-1">
-                                <div class="flex flex-col">
-                                    <span class="text-[8px] text-slate-500 font-bold uppercase">Price</span>
-                                    <span class="text-sky-400 font-black text-sm">Rs. ${p.price}</span>
-                                </div>
-                                <button class="btn-grad text-white text-[10px] font-black px-4 py-2 rounded-xl uppercase tracking-tighter">Buy</button>
+                                <span class="text-sky-400 font-black text-sm">Rs. ${p.price}</span>
+                                <button class="bg-sky-500 text-white text-[10px] font-black px-4 py-2 rounded-xl uppercase shadow-lg">Buy</button>
                             </div>
                         </div>`;
                     card.onclick = () => { selectedProduct = { ...p, id: child.key }; togglePaymentModal(true); };
@@ -289,9 +276,8 @@
         function confirmOrder() {
             const utr = document.getElementById('pay-utr').value.trim();
             const file = document.getElementById('pay-img').files[0];
-            if(!file || !utr) return alert("Proof and UTR ID required!");
-
-            const btn = document.getElementById('confirm-btn'); btn.innerText = "Processing..."; btn.disabled = true;
+            if(!file || !utr) return alert("Screenshot and ID required!");
+            const btn = document.getElementById('confirm-btn'); btn.innerText = "SENDING..."; btn.disabled = true;
             const reader = new FileReader();
             reader.onload = (e) => {
                 const data = { 
@@ -299,14 +285,26 @@
                     downloadLink: selectedProduct.link || "", 
                     userName: currentUser.name, userEmail: currentUser.email, userPhone: currentUser.phone, userAddress: currentUser.address,
                     utr: utr.toUpperCase(), proofImg: e.target.result, 
-                    status: 'Reviewing', time: new Date().toLocaleString() 
+                    status: 'Reviewing', time: new Date().toLocaleString(),
+                    downloaded: false // NEW FIELD
                 };
                 db.ref('orders').push(data).then(() => {
-                    alert("Order Placed Successfully!"); togglePaymentModal(false); showPage('history');
-                    btn.innerText = "Confirm Payment"; btn.disabled = false;
+                    alert("Order Submitted!"); togglePaymentModal(false); showPage('history');
+                    btn.innerText = "Confirm Order"; btn.disabled = false;
                 });
             };
             reader.readAsDataURL(file);
+        }
+
+        // --- NEW: DOWNLOAD TRACKING LOGIC ---
+        function handleDownload(orderId, link) {
+            if(confirm("Confirm Download? The link will disappear after this.")) {
+                db.ref('orders/' + orderId).update({ downloaded: true }).then(() => {
+                    window.open(link, '_blank');
+                    // Refresh current page to hide button
+                    loadOrders();
+                });
+            }
         }
 
         function showPage(pId) {
@@ -323,26 +321,28 @@
                 snap.forEach(child => {
                     const o = child.val();
                     if(o.userPhone === currentUser.phone) {
-                        let downloadBtn = "";
-                        if(o.status === 'Accepted' && o.downloadLink) {
-                            downloadBtn = `<a href="${o.downloadLink}" target="_blank" class="block w-full bg-green-500 text-white text-center p-3 rounded-xl font-black mt-3 uppercase text-[10px] shadow-lg">📥 Download Now</a>`;
+                        let downloadUI = "";
+                        // Logic: If accepted AND NOT downloaded yet AND link exists
+                        if(o.status === 'Accepted' && o.downloadLink && !o.downloaded) {
+                            downloadUI = `<button onclick="handleDownload('${child.key}', '${o.downloadLink}')" class="block w-full bg-green-500 text-white text-center p-3 rounded-xl font-black mt-3 uppercase text-[10px] shadow-lg">📥 Download Now</button>`;
+                        } else if (o.downloaded) {
+                            downloadUI = `<div class="bg-slate-800 text-slate-500 p-3 rounded-xl mt-3 text-[10px] font-bold italic">✅ Item Already Downloaded</div>`;
                         }
+
                         hist.innerHTML = `
                         <div class="glass p-5 rounded-3xl mb-4 text-left border-white/5 shadow-lg">
                             <div class="flex justify-between mb-2 text-[10px] font-bold uppercase">
                                 <h4>${o.item}</h4>
-                                <span class="${o.status === 'Accepted' ? 'text-green-400' : (o.status === 'Rejected' ? 'text-red-500' : 'text-sky-400')}">${o.status}</span>
+                                <span class="${o.status === 'Accepted' ? 'text-green-400' : 'text-sky-400'}">${o.status}</span>
                             </div>
                             <p class="text-sky-400 font-black text-lg">Rs. ${o.price}</p>
-                            ${downloadBtn}
+                            ${downloadUI}
                             <p class="text-[9px] text-slate-500 mt-2">${o.time}</p>
                         </div>` + hist.innerHTML;
                     }
                 });
             });
         }
-
-        function logout() { localStorage.clear(); location.reload(); }
 
         window.onload = () => {
             setTimeout(() => {
